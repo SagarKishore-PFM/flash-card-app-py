@@ -1,0 +1,311 @@
+#:kivy 1.10.0
+
+#:import Fact kivy.factory.Factory
+#:import SelectableLayout compound_selection.SelectableLayout
+
+<SV@ScrollView>:
+    id: SV1
+    top: self.height
+    pos_hint: {'center_x': .5}
+    size_hint_x: 0.5
+    size_hint_y: None
+    
+    canvas:
+        Color:
+            rgba: 1, 0, 0, 0.0
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+
+<SelectableGridLayout>:
+    canvas:
+        Color:
+            rgba: 1, 1, 1, 0.0
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    multiselect: False
+    touch_multiselect: False
+    row_force_default: True
+    cols: 2
+    padding: 10, 10
+    spacing: 10, 10
+    row_default_height: 200
+    col_force_default: False
+    col_default_width: 200
+    pos_hint: {'center_x': 0.5}
+    size_hint: 1, None
+    on_minimum_height: self.height = self.minimum_height
+
+
+<AddTestButton>:
+    id: TestBtn1
+    pos_hint: {'x': .1,'y': 0.5}
+    size_hint: 0.15, 0.15
+    text: 'Add'
+
+
+<ViewStackPopup>:
+    id: VSP
+    stack_name_lbl: StackNameLbl
+    stack_size_lbl: StackSizeLbl
+    # object_info_lbl: ObjectInfoLbl
+    stack_words_lbl: StackWordsLbl
+    stack_maxsize_lbl: StackMaxSizeLbl
+    title: "Displaying Stack Information"
+    size_hint: 0.5,0.5
+    pos: 0,0
+    separator_color: [1, 1, 1, 1]
+
+    FloatLayout:
+        pos: VSP.pos
+
+        Label:
+            id: StackNameLbl
+            halign: 'right'
+            valign: 'middle'
+            pos_hint: {'x': -0.3,'y': 0.2}
+            text: "Stack Name"
+
+        Label:
+            id: StackSizeLbl
+            halign: 'right'
+            valign: 'middle'
+            pos_hint: {'x': -0.3,'y': -0.1}
+            text: "Stack Size"
+
+        Label:
+            id: StackWordsLbl
+            halign: 'right'
+            valign: 'middle'
+            pos_hint: {'x': -0.4,'y': -0.3}
+            text: "Stack Size"
+
+        Label:
+            id: StackMaxSizeLbl
+            halign: 'right'
+            valign: 'middle'
+            pos_hint: {'x': -0.1,'y': 0.2}
+            text: "Stack Size"
+
+        Button:
+            id: ExitBtn
+            pos_hint: {'x': 0.7, 'y': 0.1}
+            size_hint: 0.1, 0.1
+            text: "Exit"
+            on_release: root.dismiss()
+
+
+<EditStackPopup>:
+    id: ESP
+    stack_name_lbl: StackNameLbl
+    stack_size_lbl: StackSizeLbl
+    stack_name_txt: StackNameTxt
+    title: "Edit Stack Information"
+    size_hint: 0.5,0.5
+    pos: 0,0
+    separator_color: [1, 1, 1, 1]
+
+    FloatLayout:
+        pos: ESP.pos
+
+        Label:
+            id: StackNameLbl
+            halign: 'right'
+            valign: 'middle'
+            pos_hint: {'x': -0.3,'y': 0.2}
+            text: "Stack Name"
+
+        Label:
+            id: StackSizeLbl
+            halign: 'right'
+            valign: 'middle'
+            pos_hint: {'x': -0.3,'y': -0.1}
+            text: "Stack Size"
+
+        #FOR DEBUGGING:
+        # Label:
+        #     id: ObjectInfoLbl
+        #     halign: 'right'
+        #     valign: 'middle'
+        #     pos_hint:{'x':-0.3,'y': -0.1}
+        #     text: 'you should not see this'
+
+        TextInput:
+            id: StackNameTxt
+            multiline: False
+            pos_hint: {'x': 0.4,'y':0.6}
+            size_hint: 0.4,0.15
+            text: StackNameLbl.text
+            
+        Button:
+            pos_hint: {'x': 0.1, 'y': 0.1}
+            size_hint: 0.1, 0.1
+            text: "Add Word(TODO)"
+            
+
+        #SaveStackEditButton:    
+        Button:
+            id: SaveChangesBtn
+            pos_hint: {'x': 0.5, 'y': 0.1}
+            size_hint: 0.1, 0.1
+            text: "Save Changes to Stack"
+
+        Button:
+            pos_hint: {'x': 0.7, 'y': 0.1}
+            size_hint: 0.1, 0.1
+            text: "Exit"
+            on_release: root.dismiss()
+
+
+
+<AddNewStackPopUp@Popup>:
+	id: NewStackPU
+    stack_name_lbl: StackNameLbl
+    stack_size_lbl: StackSizeLbl
+    title: "Add a new Stack"
+    size_hint: 0.7,0.7
+    separator_color: [1, 1, 1, 1]
+
+
+    FloatLayout:
+		pos: NewStackPU.pos
+    	Label:
+	    	id: StackNameLbl
+		    halign: 'right'
+		    valign: 'middle'
+    		pos_hint: {'x': -0.3,'y': 0.2}
+    		text: "Stack Name"
+
+    	Label:
+	    	id: StackSizeLbl
+		    halign: 'right'
+		    valign: 'middle'
+    		pos_hint: {'x': -0.3,'y': -0.1}
+    		text: "Stack Size"
+		
+		TextInput:
+			id: StackName
+			multiline: False
+			pos_hint: {'x': 0.4,'y':0.6}
+			size_hint: 0.4,0.15
+			hint_text: "Enter Stack Name...."
+
+		TextInput:
+			id: StackSize
+			multiline: False
+			pos_hint: {'x': 0.4,'y':0.3}
+			size_hint: 0.4,0.15
+			hint_text: "Enter Stack Size...."
+
+
+        Button:
+            pos_hint: {'x': 0.1, 'y': 0.1}
+            size_hint: 0.1, 0.1
+            text: "Add Word"
+            on_release: root.dismiss()
+
+        Button:
+            pos_hint: {'x': 0.6, 'y': 0.1}
+            size_hint: 0.1, 0.1
+            text: "Save Changes"
+
+<StackRelativeLayout>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 0.5
+        Rectangle:
+            pos: 0, 0
+            size: self.size
+    multiselect: False
+    touch_multiselect: False
+    
+    StackButton:
+        id: StackBtn
+        canvas.before:
+            Color:
+                rgba: .3, .3, .3, 1
+            Rectangle:
+                pos: 0, 0
+                size: self.size
+
+    StackNameLbl:
+        id: StackNameLabel
+
+    StackSizeLbl:
+        id: StackSizeLabel
+
+<StackButton@Button>:
+    id: STBTN
+    size_hint: 1, 1
+
+<StackNameLbl@Label>:
+    pos: 100, 80
+    font_size: 30
+
+<StackSizeLbl@Label>:
+    pos: 160, 40
+    font_size: 20
+
+
+<ViewStackPopupButton>:
+    pos: 100, 200
+    size_hint: 0.15, 0.15
+
+
+<EditStackPopupButton>:
+    pos_hint: {'x': 0.8, 'y': 0.8}
+    size_hint: 0.15, 0.15
+
+<FL@FloatLayout>:
+    id:FL1
+
+<StackListScreen>:
+    FL: 
+        id: FL
+        canvas.before:
+            Color:
+                rgba: 1, 0, 0, 0.0
+            Rectangle:
+                pos: 0, 0
+                size: self.size
+
+        AddTestButton:
+            id: testBtn
+            # on_release: EditStackPopup2.open()
+            # on_release: SelectableGridLayout.print_selected_nodes()
+            text: "PRINT STACK"
+            disabled: SelectableGridLayout.button_disabled
+            # on_release: self.openpop()
+
+        ViewStackPopupButton:
+            id: ViewStackBtn
+            # selected_stack_relative_layout: SelectableGridLayout.return_selected_stack_layout()
+            on_release: self.open_popup(SelectableGridLayout.return_selected_stack_layout())
+            disabled: SelectableGridLayout.button_disabled
+
+        EditStackPopupButton:
+            id: EditStackBtn
+            on_release: self.open_popup(SelectableGridLayout.return_selected_stack_layout())
+            disabled: SelectableGridLayout.button_disabled
+
+        SV:
+            id:SV
+            height: root.height * 0.7
+            
+            SelectableGridLayout:
+                id: SelectableGridLayout
+                
+                # Button:
+                #     text: "button 1"
+                # Button:
+                #     text: "button 2"
+                # Button:
+                #     text: "button 3"
+                # Button:
+                #     text: "button 4"
+                # Button:
+                #     text: "button 5"
+
+
