@@ -54,11 +54,11 @@ class SelectableLayout(FocusBehavior, CompoundSelectionBehavior):
         return super(SelectableLayout, self).select_node(node)
 
     def deselect_node(self, node):
-        node.background_color = (.1, .1, .1, 1)
+        node.background_color = (.3, .3, .3, 1)
         super(SelectableLayout, self).deselect_node(node)
 
     def on_selected_nodes(self, gird, nodes):
-        print("Selected nodes = {0}".format(nodes))
+        # print("Selected nodes = {0}".format(nodes))
         pass
 
 
