@@ -38,23 +38,16 @@
     size_hint: 1, None
     on_minimum_height: self.height = self.minimum_height
 
-
-<AddTestButton>:
-    id: TestBtn1
-    pos_hint: {'x': .1,'y': 0.5}
-    size_hint: 0.15, 0.15
-    text: 'Add'
-
+    
 
 <ViewStackPopup>:
     id: VSP
     stack_name_lbl: StackNameLbl
     stack_size_lbl: StackSizeLbl
-    # object_info_lbl: ObjectInfoLbl
     stack_words_lbl: StackWordsLbl
     stack_maxsize_lbl: StackMaxSizeLbl
     title: "Displaying Stack Information"
-    size_hint: 0.5,0.5
+    size_hint: 0.8,0.8
     pos: 0,0
     separator_color: [1, 1, 1, 1]
 
@@ -62,17 +55,26 @@
         pos: VSP.pos
 
         Label:
+            canvas:
+                Color:
+                    rgba: 1, 1, 1, 1.0
+                Rectangle:
+                    pos: self.pos
+                    size: self.texture_size       
             id: StackNameLbl
             halign: 'right'
             valign: 'middle'
-            pos_hint: {'x': -0.3,'y': 0.2}
+            pos_hint: {'x': -0.4,'y': 0.4}
             text: "Stack Name"
+            size: self.texture_size
+            color: 1,0,0,1
+            font_size: 30
 
         Label:
             id: StackSizeLbl
             halign: 'right'
             valign: 'middle'
-            pos_hint: {'x': -0.3,'y': -0.1}
+            pos_hint: {'x': -0.2,'y': 0.3}
             text: "Stack Size"
 
         Label:
@@ -80,14 +82,14 @@
             halign: 'right'
             valign: 'middle'
             pos_hint: {'x': -0.4,'y': -0.3}
-            text: "Stack Size"
+            # text: "Stack Size"
 
         Label:
             id: StackMaxSizeLbl
             halign: 'right'
             valign: 'middle'
             pos_hint: {'x': -0.1,'y': 0.2}
-            text: "Stack Size"
+            # text: "Stack Size"
 
         Button:
             id: ExitBtn
@@ -96,6 +98,30 @@
             text: "Exit"
             on_release: root.dismiss()
 
+        Button:
+            id: PlayBtn
+            pos_hint: {'x': 0.7, 'y': 0.3}
+            size_hint: 0.1, 0.1
+            text: "Practice"
+            # on_release: root.dismiss()
+
+        WordGridLayout:
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1.0
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            id: GL
+            pos_hint: {'x':0.3,'y':0.1}
+            size_hint: 0.2,0.4
+            spacing: 10
+            padding: 10
+
+            ViewStackWordViewList:
+                id: WordViewList
+                pos: GL.pos
+                size: GL.size
 
 <EditStackPopup>:
     id: ESP
@@ -124,13 +150,6 @@
             pos_hint: {'x': -0.3,'y': -0.1}
             text: "Stack Size"
 
-        #FOR DEBUGGING:
-        # Label:
-        #     id: ObjectInfoLbl
-        #     halign: 'right'
-        #     valign: 'middle'
-        #     pos_hint:{'x':-0.3,'y': -0.1}
-        #     text: 'you should not see this'
 
         TextInput:
             id: StackNameTxt
@@ -160,8 +179,8 @@
 
 
 
-<AddNewStackPopUp@Popup>:
-	id: NewStackPU
+<CreateStackPopup@Popup>:
+	id: CreateStackPopup
     stack_name_lbl: StackNameLbl
     stack_size_lbl: StackSizeLbl
     title: "Add a new Stack"
@@ -170,7 +189,7 @@
 
 
     FloatLayout:
-		pos: NewStackPU.pos
+		pos: CreateStackPopup.pos
     	Label:
 	    	id: StackNameLbl
 		    halign: 'right'
@@ -248,14 +267,23 @@
     pos: 160, 40
     font_size: 20
 
+<AddTestButton>:
+    id: TestBtn1
+    pos_hint: {'x': 0.1,'y': 0.2}
+    size_hint: 0.15, 0.15
+    text: 'Add'
 
 <ViewStackPopupButton>:
-    pos: 100, 200
+    pos_hint: {'x': 0.1, 'y': 0.5}
     size_hint: 0.15, 0.15
 
 
 <EditStackPopupButton>:
-    pos_hint: {'x': 0.8, 'y': 0.8}
+    pos_hint: {'x': 0.8, 'y': 0.5}
+    size_hint: 0.15, 0.15
+
+<CreataStackPopupButton>:
+    pos_hint: {'x': 0.1, 'y': 0.2}
     size_hint: 0.15, 0.15
 
 <FL@FloatLayout>:
@@ -271,24 +299,29 @@
                 pos: 0, 0
                 size: self.size
 
-        AddTestButton:
-            id: testBtn
-            # on_release: EditStackPopup2.open()
-            # on_release: SelectableGridLayout.print_selected_nodes()
-            text: "PRINT STACK"
-            disabled: SelectableGridLayout.button_disabled
-            # on_release: self.openpop()
+        # AddTestButton:
+        #     id: testBtn
+        #     # on_release: EditStackPopup2.open()
+        #     # on_release: SelectableGridLayout.print_selected_nodes()
+        #     text: "PRINT STACK"
+        #     disabled: SelectableGridLayout.button_disabled
 
         ViewStackPopupButton:
             id: ViewStackBtn
-            # selected_stack_relative_layout: SelectableGridLayout.return_selected_stack_layout()
             on_release: self.open_popup(SelectableGridLayout.return_selected_stack_layout())
             disabled: SelectableGridLayout.button_disabled
+            text: "Practice Selected Stack"
 
         EditStackPopupButton:
             id: EditStackBtn
             on_release: self.open_popup(SelectableGridLayout.return_selected_stack_layout())
             disabled: SelectableGridLayout.button_disabled
+            text: "Edit Selected Stack"
+
+        CreataStackPopupButton:
+            id: CreateStackBtn
+            on_release: self.open_popup()
+            text: "Create a new Stack"
 
         SV:
             id:SV
