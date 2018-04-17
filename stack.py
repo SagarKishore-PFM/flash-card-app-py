@@ -15,7 +15,10 @@ class Stack:
         self.name = name
         self.words = []
         self.maxsize = 50
-        self.size = 0
+
+    @property
+    def size(self):
+        return len(self.words)
 
     def __repr__(self):
         return "Stack({!r})".format((self.name))
