@@ -15,7 +15,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.properties import BooleanProperty
-from testdatabase import generate_test_database
+from testdatabase import generate_test_stack_database
 from compound_selection import SelectableLayout
 from kivy.uix.listview import ListItemButton, ListView
 from kivy.adapters.listadapter import ListAdapter
@@ -60,7 +60,7 @@ from kivy.adapters.listadapter import ListAdapter
 # >> Delete Stack:
 #     Everything
 
-STACK_DATABASE = generate_test_database()
+STACK_DATABASE = generate_test_stack_database()
 
 # class AddTestButton(Button):
 
