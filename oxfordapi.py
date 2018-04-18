@@ -6,7 +6,7 @@ Created on Saturday, March 31st 2018
 """
 
 import requests
-from urllib3.exceptions import HTTPError
+from requests.exceptions import HTTPError
 from word import Word
 from pprint import PrettyPrinter
 
@@ -31,22 +31,31 @@ def getdefinitions(word_object, word_id):
         status = True
     except HTTPError:
         status = False
-
+        return status
     response_dict = r.json()
     header = response_dict['results'][0]
     name = header['word']
     lex_entries = {}
+    AudioLink = ''
     lex_list = header['lexicalEntries']
     for lex in lex_list:
         lexentry = {}
         category = lex['lexicalCategory']
-        AudioLink = lex['pronunciations'][0]['audioFile']
+        try:
+            AudioLink = lex['pronunciations'][0]['audioFile']
+        except KeyError:
+            pass
         sense = lex['entries'][0]['senses'][0]
-        lexentry['definition'] = sense['definitions']
+        try:
+            lexentry['definition'] = sense['definitions']
+        except KeyError:
+            continue
         lexentry['examples'] = []
-        for examples in sense['examples']:
-            lexentry['examples'].append(examples['text'])
-
+        try:
+            for examples in sense['examples']:
+                lexentry['examples'].append(examples['text'])
+        except KeyError:
+            pass
         lex_entries[category] = lexentry
 
     word_object.name = name
@@ -75,6 +84,7 @@ def getsynant(word_object, word_id):
         status = True
     except HTTPError:
         status = False
+        return status
     response_dict = r.json()
 
     header = response_dict['results'][0]
@@ -125,9 +135,9 @@ def addword(word_object):
 def main(name=None):
     pp = PrettyPrinter(indent=4)
     if name is None:
-        name = 'set'
+        name = 'hypochondriac'
     a = Word(name)
-    a, status = addword(a, a.name)
+    a, status = addword(a)
     repr(a)
     pp.pprint(a)
 
