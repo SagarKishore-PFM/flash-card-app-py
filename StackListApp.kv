@@ -2,7 +2,8 @@
 
 #:import Fact kivy.factory.Factory
 #:import SelectableLayout compound_selection.SelectableLayout
-
+#:import generate_test_word_database testdatabase.generate_test_word_database
+#: set WORD_DATABASE generate_test_word_database()
 <SV@ScrollView>:
     id: SV1
     top: self.height
@@ -11,6 +12,7 @@
     size_hint_y: None
     
     canvas:
+
         Color:
             rgba: 1, 0, 0, 0.0
         Rectangle:
@@ -44,8 +46,6 @@
     id: VSP
     stack_name_lbl: StackNameLbl
     stack_size_lbl: StackSizeLbl
-    stack_words_lbl: StackWordsLbl
-    stack_maxsize_lbl: StackMaxSizeLbl
     title: "Displaying Stack Information"
     size_hint: 0.8,0.8
     pos: 0,0
@@ -75,21 +75,6 @@
             halign: 'right'
             valign: 'middle'
             pos_hint: {'x': -0.2,'y': 0.3}
-            text: "Stack Size"
-
-        Label:
-            id: StackWordsLbl
-            halign: 'right'
-            valign: 'middle'
-            pos_hint: {'x': -0.4,'y': -0.3}
-            # text: "Stack Size"
-
-        Label:
-            id: StackMaxSizeLbl
-            halign: 'right'
-            valign: 'middle'
-            pos_hint: {'x': -0.1,'y': 0.2}
-            # text: "Stack Size"
 
         Button:
             id: ExitBtn
@@ -117,6 +102,7 @@
             size_hint: 0.2,0.4
             spacing: 10
             padding: 10
+            cols: 2
 
             ViewStackWordViewList:
                 id: WordViewList
@@ -163,6 +149,7 @@
             size_hint: 0.1, 0.1
             text: "Add Word(TODO)"
             
+            
 
         #SaveStackEditButton:    
         Button:
@@ -177,9 +164,27 @@
             text: "Exit"
             on_release: root.dismiss()
 
+<WordDescriptionLayout>:
+
+    # lblid: WordName
+    canvas:
+
+        Color:
+            rgba: 1, 0, 0, 1.0
+        Rectangle:
+            pos: self.pos
+            size: self.size    
+
+    size_hint: 1,None
+    height: 35
+    Label:
+        id: WordName
+        text: root.word_object.name
+        pos: root.pos
 
 
-<CreateStackPopup@Popup>:
+
+<CreateStackPopup>:
 	id: CreateStackPopup
     stack_name_lbl: StackNameLbl
     stack_size_lbl: StackSizeLbl
@@ -202,7 +207,7 @@
 		    halign: 'right'
 		    valign: 'middle'
     		pos_hint: {'x': -0.3,'y': -0.1}
-    		text: "Stack Size"
+    		# text: "Stack Size"
 		
 		TextInput:
 			id: StackName
@@ -210,25 +215,44 @@
 			pos_hint: {'x': 0.4,'y':0.6}
 			size_hint: 0.4,0.15
 			hint_text: "Enter Stack Name...."
-
-		TextInput:
-			id: StackSize
-			multiline: False
-			pos_hint: {'x': 0.4,'y':0.3}
-			size_hint: 0.4,0.15
-			hint_text: "Enter Stack Size...."
+            on_text: root.validate_text_input()
 
 
         Button:
+            id: EditWordsBtn
             pos_hint: {'x': 0.1, 'y': 0.1}
             size_hint: 0.1, 0.1
             text: "Add Word"
-            on_release: root.dismiss()
+            on_release: root.open_edit_words_popup(WORD_DATABASE)
 
         Button:
+            id: SaveChangesBtn
             pos_hint: {'x': 0.6, 'y': 0.1}
             size_hint: 0.1, 0.1
             text: "Save Changes"
+            # on_release: root.create_new_stack()
+            disabled: root.button_disabled
+
+
+        WordGridLayout:
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1.0
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            id: GL
+            pos_hint: {'x':0.3,'y':0.1}
+            size_hint: 0.2,0.4
+            spacing: 10
+            padding: 10
+            cols: 2
+
+            ViewStackWordViewList:
+                id: WordViewList
+                pos: GL.pos
+                size: GL.size
+
 
 <StackRelativeLayout>:
     canvas.before:
@@ -254,6 +278,8 @@
 
     StackSizeLbl:
         id: StackSizeLabel
+
+
 
 <StackButton@Button>:
     id: STBTN
@@ -286,62 +312,159 @@
     pos_hint: {'x': 0.1, 'y': 0.2}
     size_hint: 0.15, 0.15
 
-<FL@FloatLayout>:
-    id:FL1
 
 <ListItemButton>:
     font_size: 18
-    
-<StackListScreen>:
-    FL: 
-        id: FL
-        canvas.before:
-            Color:
-                rgba: 1, 0, 0, 0.0
-            Rectangle:
-                pos: 0, 0
-                size: self.size
 
-        # AddTestButton:
-        #     id: testBtn
-        #     # on_release: EditStackPopup2.open()
-        #     # on_release: SelectableGridLayout.print_selected_nodes()
-        #     text: "PRINT STACK"
-        #     disabled: SelectableGridLayout.button_disabled
+<EditWordsPopup>:
+    id: CreateStackPopup
+    title: "Edit Words"
+    size_hint: 0.7,0.7
+    separator_color: [1, 1, 1, 1]
+    FloatLayout:
 
-        ViewStackPopupButton:
-            id: ViewStackBtn
-            on_release: self.open_popup(SelectableGridLayout.return_selected_stack_layout())
-            disabled: SelectableGridLayout.button_disabled
-            text: "Practice Selected Stack"
+        TextInput:
+            id: SearchBar
+            pos_hint: {'center_x':0.4,'y':0.85}
+            size_hint: 0.7,0.1
+            on_text: root.search_words(self.text)
+            multiline: False
 
-        EditStackPopupButton:
-            id: EditStackBtn
-            on_release: self.open_popup(SelectableGridLayout.return_selected_stack_layout())
-            disabled: SelectableGridLayout.button_disabled
-            text: "Edit Selected Stack"
+        Button:
+            id: SaveChangesBtn
+            text: "Save changes"
+            pos_hint: {'x':0.8,'y':0.85}
+            size_hint: 0.2,0.1
 
-        CreataStackPopupButton:
-            id: CreateStackBtn
-            on_release: self.open_popup()
-            text: "Create a new Stack"
+        Button:
+            id: AddWordsBtn
+            text: "Add Selected Words"
+            pos_hint: {'x':0.05,'y':0.25}
+            size_hint: 0.2,0.1
+            # on_release: TestLbl.text = str(','.join(x.word_object.name for x in root.search_list_adapter.selection))
+            on_release: root.populate_selected_list()
+            # on_release: root.populate_label()
+        Label:
+            id: TestLbl
+            text: "Change"
+            pos_hint: {'x': -0.35, 'y': -0.1}
+        
+        Button:
+            id: RemoveWordsBtn
+            text: "Remove Selected Words"
+            pos_hint: {'x':0.75,'y':0.55}
+            size_hint: 0.2,0.1
+            on_release: root.remove_selected_list()
 
-        SV:
-            id:SV
-            height: root.height * 0.7
+
+        WordGridLayout:
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 0, 1.0
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            id: SearchWordGL
+            pos_hint: {'x':0.3,'y':0.1}
+            size_hint: 0.17,0.4
+            spacing: 10
+            padding: 10
+            cols: 2
+
+            ViewStackWordViewList:
+                id: SearchWordViewList
+                pos: SearchWordGL.pos
+                size: SearchWordGL.size
+
+        WordGridLayout:
+            canvas.before:
+                Color:
+                    rgba: 0, 1, 1, 1.0
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            id: SelectedWordGL
+            pos_hint: {'x':0.7,'y':0.1}
+            size_hint: 0.17,0.4
+            spacing: 10
+            padding: 10
+            cols: 2
+
+            ViewStackWordViewList:
+                id: SelectedWordViewList
+                pos: SelectedWordGL.pos
+                size: SelectedWordGL.size
+
+
+        WordGridLayout:
+            canvas.before:
+                Color:
+                    rgba: .1, .1, .1, 1.0
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            id: ThesaurusWordGL
+            pos_hint: {'x':0.5,'y':0.1}
+            size_hint: 0.17,0.4
+            spacing: 10
+            padding: 10
+            cols: 2
+
+            ViewStackWordViewList:
+                id: ThesaurusWordListView
+                pos: ThesaurusWordGL.pos
+                size: ThesaurusWordGL.size
+
+
+<RootFloatLayout>:
+    id: FL
+    canvas.before:
+        Color:
+            rgba: 1, 0, 0, 0.0
+        Rectangle:
+            pos: 0, 0
+            size: self.size
+
+    # AddTestButton:
+    #     id: testBtn
+    #     # on_release: EditStackPopup2.open()
+    #     # on_release: SelectableGridLayout.print_selected_nodes()
+    #     text: "PRINT STACK"
+    #     disabled: SelectableGridLayout.button_disabled
+
+    ViewStackPopupButton:
+        id: ViewStackBtn
+        on_release: self.open_popup(SelectableGridLayout.return_selected_stack_layout())
+        disabled: SelectableGridLayout.button_disabled
+        text: "Practice Selected Stack"
+
+    EditStackPopupButton:
+        id: EditStackBtn
+        on_release: self.open_popup(SelectableGridLayout.return_selected_stack_layout())
+        disabled: SelectableGridLayout.button_disabled
+        text: "Edit Selected Stack"
+
+    CreataStackPopupButton:
+        id: CreateStackBtn
+        on_release: self.open_popup(root.ids.SelectableGridLayout)
+        text: "Create a new Stack"
+
+    SV:
+        id:SV
+        height: root.height * 0.7
+        
+        SelectableGridLayout:
+            id: SelectableGridLayout
             
-            SelectableGridLayout:
-                id: SelectableGridLayout
-                
-                # Button:
-                #     text: "button 1"
-                # Button:
-                #     text: "button 2"
-                # Button:
-                #     text: "button 3"
-                # Button:
-                #     text: "button 4"
-                # Button:
-                #     text: "button 5"
+            # Button:
+            #     text: "button 1"
+            # Button:
+            #     text: "button 2"
+            # Button:
+            #     text: "button 3"
+            # Button:
+            #     text: "button 4"
+            # Button:
+            #     text: "button 5"
 
 
