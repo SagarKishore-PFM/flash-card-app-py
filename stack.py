@@ -14,7 +14,7 @@ class Stack:
     def __init__(self, name, **kwargs):
         self.name = name
         self.words = []
-        self.maxsize = 50
+        # self.maxsize = 50
 
     @property
     def size(self):
