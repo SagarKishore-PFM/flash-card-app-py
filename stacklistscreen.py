@@ -24,6 +24,7 @@ from kivy.uix.selectableview import SelectableView
 from testdatabase import generate_test_stack_database
 from testdatabase import generate_test_word_database
 from stack import Stack
+
 # ChangeLog:
 
 # Version 0.2.0:
@@ -38,10 +39,9 @@ from stack import Stack
 # TODO:
 
 # Add popups for all the functionalities required.
-# Fix the existing popups or create new ones.
 # Text inputs need to have their rules changed
 # Consider reomving max size for stack object ELSE implement the logic for it
-# Create a word database
+# Rearrange and cleaup the .kv file
 
 # TODO:
 # >> View Stack:
@@ -50,19 +50,20 @@ from stack import Stack
 
 # >> Edit Stack:
 #     Fix the positions of the widgets and make it pretty
-#     Create the word list view and add a button that take you to a different
-#         screen or popup that allows you to edit the words of the stack
-#     Logic for the edit word UI and backend
+#     Input Validation with an error message using label
+#     Make sure that the stack name is unique
 
 # >> Create Stack:
 #     Fix the positions of the widgets and make it pretty
 #     Make the text input mandatory
-#     Create a button that takes you to a different screen or popup that allows
-#         you to add words to the stack
 #     Make sure that the stack name is unique
+#     Input Validation with an error message using label
 
 # >> Delete Stack:
 #     Everything
+
+# >> Edit Words Popup:
+#     See if you want to merge the thesaurus and the search list into one
 
 STACK_DATABASE = generate_test_stack_database()
 WORD_DATABASE = generate_test_word_database()
@@ -123,6 +124,17 @@ class WordGridLayout(SelectableLayout, GridLayout):
     pass
 
 
+class ViewStackButton(Button):
+
+    # selected_stack_relative_layout = ObjectProperty(None)
+    # selected_stack_object = ObjectProperty(None)
+
+    def open_popup(self, selected_stack_relative_layout):
+        selected_stack_object = selected_stack_relative_layout.stack_object
+        popup = ViewStackPopup(selected_stack_object)
+        popup.open()
+
+
 class ViewStackPopup(Popup):
 
     stack_name_lbl = ObjectProperty(None)
@@ -152,18 +164,7 @@ class ViewStackPopup(Popup):
         self.word_list_view.adapter = list_adapter
 
 
-class ViewStackPopupButton(Button):
-
-    # selected_stack_relative_layout = ObjectProperty(None)
-    # selected_stack_object = ObjectProperty(None)
-
-    def open_popup(self, selected_stack_relative_layout):
-        selected_stack_object = selected_stack_relative_layout.stack_object
-        popup = ViewStackPopup(selected_stack_object)
-        popup.open()
-
-
-class CreataStackPopupButton(Button):
+class CreateStackButton(Button):
 
     def open_popup(self, SelectableGridLayout):
         popup = CreateStackPopup()
@@ -248,6 +249,8 @@ class CreateStackPopup(Popup):
 # Write the logic to add selected words from search to the word_object_list of
 #     the previous screen
 # Upon pressing the save button return the modified word_object_list
+# Maybe have only two list views. Merge the thesaurus and search list view into
+    # one
 class WordListItemButton(ListItemButton):
 
     word_object = ObjectProperty(None)
@@ -268,14 +271,14 @@ class EditWordsPopup(Popup):
         self.selected_word_list_view = self.ids.SelectedWordViewList
         self.search_word_list_view = self.ids.SearchWordViewList
         self.thesaurus_word_list_view = self.ids.ThesaurusWordListView
-        self.search_dict = {word.name: word for word in word_database}
+        self.search_dict = {word.name: word for word in self.word_database}
         self.search_list_adapter = None
         self.selected_list_adapter = None
         self.generate_selected_word_listview()
 
         # self.search_word_list_view.adapter.bind(on_selection_change=self.generate_thesaurus_listview())
 
-    def args_converter(self, row_indext, rec):
+    def args_converter(self, row_index, rec):
 
         return {'text': rec.name,
                 'size_hint_y': None,
@@ -303,7 +306,7 @@ class EditWordsPopup(Popup):
         self.search_word_list_view.adapter = self.search_list_adapter
         self.search_word_list_view.adapter.bind(on_selection_change=self.generate_thesaurus_listview)
 
-    # FIXME:
+    # TODO:
     # >> Need to create a floatlayout that shows info for the word
 
     def thesaurus_args_converter(self, row_index, rec):
@@ -326,14 +329,14 @@ class EditWordsPopup(Popup):
         self.thesaurus_word_list_view.container.spacing = 20
 
     def search_words(self, input):
-        search_word_list = []
+        search_result = []
         if(len(input) != 0):
             for key in self.search_dict:
                 if(input in key[0:len(input)]):
-                    search_word_list.append(self.search_dict[key])
+                    search_result.append(self.search_dict[key])
 
-        self.generate_search_word_listview(search_word_list)
-        if(search_word_list == []):
+        self.generate_search_word_listview(search_result)
+        if(search_result == []):
             self.generate_thesaurus_listview(self.search_word_list_view.adapter)
 
     def populate_selected_list(self):
@@ -356,27 +359,7 @@ class EditWordsPopup(Popup):
         self.generate_selected_word_listview()
 
 
-class EditStackPopup(Popup):
-
-    stack_name_lbl = ObjectProperty(None)
-    stack_size_lbl = ObjectProperty(None)
-    stack_name_txt = ObjectProperty(None)
-    save_changes_btn = ObjectProperty(None)
-    # object_info_lbl = ObjectProperty(None)
-
-    def __init__(self, stack_object, *args, **kwargs):
-        self.stack_object = stack_object
-        super(EditStackPopup, self).__init__(*args, **kwargs)
-        self.stack_name_lbl.text = self.stack_object.name
-        self.stack_size_lbl.text = str(self.stack_object.size)
-        # self.object_info_lbl.text = str(stack_object)
-
-    def save_changes_to_stack_object(self):
-        self.stack_object.name = self.stack_name_txt.text
-        return self.stack_object
-
-
-class EditStackPopupButton(Button):
+class EditStackButton(Button):
 
     def open_popup(self, selected_stack_relative_layout):
         selected_stack_object = selected_stack_relative_layout.stack_object
@@ -392,7 +375,68 @@ class EditStackPopupButton(Button):
                                 selected_stack_relative_layout,
                                 instance):
         changed_stack_object = popup.save_changes_to_stack_object()
+        popup.dismiss()
         selected_stack_relative_layout.redraw(changed_stack_object)
+
+
+class EditStackPopup(Popup):
+
+    stack_name_lbl = ObjectProperty(None)
+    stack_size_lbl = ObjectProperty(None)
+    button_disabled = BooleanProperty(True)
+    stack_name_txt = ObjectProperty(None)
+    # save_changes_btn = ObjectProperty(None)
+    # object_info_lbl = ObjectProperty(None)
+
+    def __init__(self, stack_object, *args, **kwargs):
+        self.stack_object = stack_object
+        super(EditStackPopup, self).__init__(*args, **kwargs)
+        self.ids.StackNameLbl.text = self.stack_object.name
+        self.ids.StackSizeLbl.text = str(self.stack_object.size)
+        self.word_list_view = self.ids.WordViewList
+        self.word_object_list = stack_object.words
+        self.generate_word_listview()
+        self.list_adapter = WordListAdapter
+        self.validate_text_input()
+
+    def save_changes_to_stack_object(self):
+        self.stack_object.name = self.stack_name_txt.text
+        return self.stack_object
+
+    def args_converter(self, row_indext, rec):
+
+        return {'text': rec.name,
+                'size_hint_y': None,
+                'height': 25}
+
+    def generate_word_listview(self):
+
+        self.list_adapter = WordListAdapter(data=self.word_object_list,
+                                            args_converter=self.args_converter,
+                                            selection_mode="single",
+                                            allow_empty_selection=False,
+                                            cls=ListItemButton,
+                                            word_object_list=self.word_object_list)
+        self.word_list_view.adapter = self.list_adapter
+
+    def open_edit_words_popup(self, word_database):
+
+        popup = EditWordsPopup(word_database, self.word_object_list)
+        popup.ids.SaveChangesBtn.bind(on_release=partial(
+                            self.update_changes_to_word_list,
+                            popup))
+        popup.open()
+
+    def update_changes_to_word_list(self,
+                                    popup,
+                                    instance):
+        self.word_object_list = popup.selected_list_adapter.data
+        popup.dismiss()
+        self.generate_word_listview()
+
+    def validate_text_input(self):
+        text = self.ids.StackName.text
+        self.button_disabled = len(text) < 1
 
 
 class RootFloatLayout(FloatLayout):
