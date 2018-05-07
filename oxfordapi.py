@@ -26,11 +26,12 @@ def getdefinitions(word_object, word_id):
     url_head = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/'
     url = url_head + LANGUAGE + '/' + word_id.lower()
     r = requests.get(url, headers={'app_id': APP_ID, 'app_key': APP_KEY})
+
     try:
         r.raise_for_status()
-        status = True
+        status = True, r.status_code
     except HTTPError:
-        status = False
+        status = False, r.status_code
         return status
     response_dict = r.json()
     header = response_dict['results'][0]
@@ -81,9 +82,9 @@ def getsynant(word_object, word_id):
     r = requests.get(url, headers={'app_id': app_id, 'app_key': app_key})
     try:
         r.raise_for_status()
-        status = True
+        status = True, r.status_code
     except HTTPError:
-        status = False
+        status = False, r.status_code
         return status
     response_dict = r.json()
 
@@ -126,7 +127,7 @@ def addword(word_object):
     word_id = word_object.name
     status1 = getdefinitions(word_object, word_id)
     status2 = getsynant(word_object, word_id)
-    return (word_object, status1 and status2)
+    return (word_object, status1, status2)
 
 
 """ DEBUGGING """
