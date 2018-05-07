@@ -40,7 +40,6 @@
     size_hint: 1, None
     on_minimum_height: self.height = self.minimum_height
 
-    
 
 <ViewStackPopup>:
     id: VSP
@@ -110,59 +109,76 @@
                 size: GL.size
 
 <EditStackPopup>:
-    id: ESP
+	id: EditStackPopup
     stack_name_lbl: StackNameLbl
     stack_size_lbl: StackSizeLbl
-    stack_name_txt: StackNameTxt
+    stack_name_txt: StackName
     title: "Edit Stack Information"
-    size_hint: 0.5,0.5
-    pos: 0,0
+    size_hint: 0.7,0.7
     separator_color: [1, 1, 1, 1]
 
+
     FloatLayout:
-        pos: ESP.pos
+		pos: EditStackPopup.pos
+    	Label:
+	    	id: StackNameLbl
+		    halign: 'right'
+		    valign: 'middle'
+    		pos_hint: {'x': -0.3,'y': 0.2}
+    		text: "Stack Name"
 
-        Label:
-            id: StackNameLbl
-            halign: 'right'
-            valign: 'middle'
-            pos_hint: {'x': -0.3,'y': 0.2}
-            text: "Stack Name"
+    	Label:
+	    	id: StackSizeLbl
+		    halign: 'right'
+		    valign: 'middle'
+    		pos_hint: {'x': -0.3,'y': -0.1}
+    		# text: "Stack Size"
+		
+		TextInput:
+			id: StackName
+			multiline: False
+			pos_hint: {'x': 0.4,'y':0.6}
+			size_hint: 0.4,0.15
+			hint_text: "Enter Stack Name...."
+            text: root.stack_object.name
+            on_text: root.validate_text_input()
 
-        Label:
-            id: StackSizeLbl
-            halign: 'right'
-            valign: 'middle'
-            pos_hint: {'x': -0.3,'y': -0.1}
-            text: "Stack Size"
 
-
-        TextInput:
-            id: StackNameTxt
-            multiline: False
-            pos_hint: {'x': 0.4,'y':0.6}
-            size_hint: 0.4,0.15
-            text: StackNameLbl.text
-            
         Button:
+            id: EditWordsBtn
             pos_hint: {'x': 0.1, 'y': 0.1}
             size_hint: 0.1, 0.1
-            text: "Add Word(TODO)"
-            
-            
+            text: "Edit Word"
+            on_release: root.open_edit_words_popup(WORD_DATABASE)
 
-        #SaveStackEditButton:    
         Button:
             id: SaveChangesBtn
-            pos_hint: {'x': 0.5, 'y': 0.1}
+            pos_hint: {'x': 0.6, 'y': 0.1}
             size_hint: 0.1, 0.1
-            text: "Save Changes to Stack"
+            text: "Save Changes"
+            # on_release: root.create_new_stack()
+            disabled: root.button_disabled
 
-        Button:
-            pos_hint: {'x': 0.7, 'y': 0.1}
-            size_hint: 0.1, 0.1
-            text: "Exit"
-            on_release: root.dismiss()
+
+        WordGridLayout:
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1.0
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            id: GL
+            pos_hint: {'x':0.3,'y':0.1}
+            size_hint: 0.2,0.4
+            spacing: 10
+            padding: 10
+            cols: 2
+
+            ViewStackWordViewList:
+                id: WordViewList
+                pos: GL.pos
+                size: GL.size
+
 
 <WordDescriptionLayout>:
 
@@ -299,16 +315,16 @@
     size_hint: 0.15, 0.15
     text: 'Add'
 
-<ViewStackPopupButton>:
+<ViewStackButton>:
     pos_hint: {'x': 0.1, 'y': 0.5}
     size_hint: 0.15, 0.15
 
 
-<EditStackPopupButton>:
+<EditStackButton>:
     pos_hint: {'x': 0.8, 'y': 0.5}
     size_hint: 0.15, 0.15
 
-<CreataStackPopupButton>:
+<CreateStackButton>:
     pos_hint: {'x': 0.1, 'y': 0.2}
     size_hint: 0.15, 0.15
 
@@ -432,19 +448,19 @@
     #     text: "PRINT STACK"
     #     disabled: SelectableGridLayout.button_disabled
 
-    ViewStackPopupButton:
+    ViewStackButton:
         id: ViewStackBtn
         on_release: self.open_popup(SelectableGridLayout.return_selected_stack_layout())
         disabled: SelectableGridLayout.button_disabled
         text: "Practice Selected Stack"
 
-    EditStackPopupButton:
+    EditStackButton:
         id: EditStackBtn
         on_release: self.open_popup(SelectableGridLayout.return_selected_stack_layout())
         disabled: SelectableGridLayout.button_disabled
         text: "Edit Selected Stack"
 
-    CreataStackPopupButton:
+    CreateStackButton:
         id: CreateStackBtn
         on_release: self.open_popup(root.ids.SelectableGridLayout)
         text: "Create a new Stack"
