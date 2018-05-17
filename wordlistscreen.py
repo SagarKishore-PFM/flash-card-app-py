@@ -29,6 +29,10 @@ from helperfuncs import word_description
 #     >> WordRelativeLayout must show meaning as well. This means you need to
 #         generate it dynamically.
 #     >> Database is not affected at the moment.
+#     >> Minor clean up in the popup UIs
+#     >> Add navigation to the StackList Screen and DataBaseScreen(?)
+#     >> Cleanup the kv file
+
 STACK_DATABASE = generate_test_stack_database()
 WORD_DATABASE = generate_test_word_database()
 WORD_LIST = {word.name for word in WORD_DATABASE}
