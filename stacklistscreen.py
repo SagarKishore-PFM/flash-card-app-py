@@ -38,32 +38,42 @@ from stack import Stack
 
 # TODO:
 
-# Add popups for all the functionalities required.
-# Text inputs need to have their rules changed
-# Consider reomving max size for stack object ELSE implement the logic for it
-# Rearrange and cleaup the .kv file
+# >> Align everything properly in the main screen
+# >> Increase padding between the stack relative layouts
+# >> The relative layout must now show a progress bar that depicts number of
+#      words mastered
+# >> Add buttons to navigate to Word List screen and DataBaseScreen(?)
+# >> Add Delete Stack Popup
+# >> Add logic that saves the changes often and/or upon exiting the application
+# >> Add a rule that doesn't allow stack names to be duplicated
+# >> Text inputs need to have their rules changed
+# >> Rearrange and cleaup the .kv file
+# >> Cleanup the code
 
-# TODO:
 # >> View Stack:
 #     Fix the positions of the widgets and make it pretty
+#     Maybe show the progress bars from the game screen(?)
 #     Implementation of flash card via Practice Button in the popup
 
 # >> Edit Stack:
 #     Fix the positions of the widgets and make it pretty
 #     Input Validation with an error message using label
 #     Make sure that the stack name is unique
+#     Remove Words gets multi select(?)
 
 # >> Create Stack:
 #     Fix the positions of the widgets and make it pretty
 #     Make the text input mandatory
 #     Make sure that the stack name is unique
 #     Input Validation with an error message using label
+#     Remove Words gets multi select(?)
 
 # >> Delete Stack:
 #     Everything
 
 # >> Edit Words Popup:
 #     See if you want to merge the thesaurus and the search list into one
+#     Make thesaurus list selectable and shows word meaning
 
 STACK_DATABASE = generate_test_stack_database()
 WORD_DATABASE = generate_test_word_database()
