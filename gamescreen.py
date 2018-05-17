@@ -69,8 +69,8 @@ class RootFloatLayout(FloatLayout):
             print(f'old word is {old_word.name} and will be added to rank {new_rank}')
             self.rank_dict[new_rank].add(old_word)
             self.update_progressbars()
-        bottom1 = 'Not yet used1'
-        bottom2 = 'Not yet used2'
+        # bottom1 = 'Not yet used1'
+        # bottom2 = 'Not yet used2'
         if(len(self.rank_dict[-1]) == 0):
             bottom1, bottom2 = self.updatebottom()
 
