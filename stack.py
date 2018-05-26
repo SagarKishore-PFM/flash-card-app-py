@@ -14,7 +14,32 @@ class Stack:
     def __init__(self, name, **kwargs):
         self.name = name
         self.words = []
-        # self.maxsize = 50
+        self._rank_dict = {0: set(),
+                           1: set(),
+                           2: set(),
+                           3: set(),
+                           4: set(),
+                           5: set(),
+                           6: set(),
+                           -1: set(self.words), }
+
+    @property
+    def rank_dict(self):
+        return self._rank_dict
+
+    @rank_dict.setter
+    def rank_dict(self, value):
+        self._rank_dict = value
+
+    def refresh_rank_dict(self):
+        self.rank_dict =  {0: set(),
+                           1: set(),
+                           2: set(),
+                           3: set(),
+                           4: set(),
+                           5: set(),
+                           6: set(),
+                           -1: set(self.words), }
 
     @property
     def size(self):
@@ -28,7 +53,7 @@ class Stack:
         Stack - {self.name}
         Words - {self.words}
         Size - {self.size}
-        Max Size - {self.maxsize}"""
+        """
 
     def __len__(self):
         return len(self.words)
