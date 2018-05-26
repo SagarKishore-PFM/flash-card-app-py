@@ -23,20 +23,21 @@ from oxfordapi import addword
 from compound_selection import SelectableLayout
 from testdatabase import generate_test_stack_database
 from testdatabase import generate_test_word_database
-from helperfuncs import word_description
+from helperfuncs import word_description, short_meaning
 
 # TODO:
-#     >> WordRelativeLayout must show meaning as well. This means you need to
-#         generate it dynamically.
+
 #     >> Database is not affected at the moment.
 #     >> Minor clean up in the popup UIs
 #     >> Add navigation to the StackList Screen and DataBaseScreen(?)
 #     >> Cleanup the kv file
+#     >> Add audio button in description?
+#     >> Add audio in main screen WordRelativeLayouts
 
-STACK_DATABASE = generate_test_stack_database()
 WORD_DATABASE = generate_test_word_database()
+
 WORD_LIST = {word.name for word in WORD_DATABASE}
-# WORD_DATABASE = STACK_DATABASE[0].words
+WORD_SEARCH_DICT = {word.name: word for word in WORD_DATABASE}
 
 
 class WordRelativeLayout(SelectableLayout, RelativeLayout):
@@ -47,7 +48,8 @@ class WordRelativeLayout(SelectableLayout, RelativeLayout):
         self.draw()
 
     def draw(self):
-        self.ids.WordNameLabel.text = self.word_object.name
+        self.ids.WordNameLbl.text = self.word_object.name
+        self.ids.WordMeaningLbl.text = short_meaning(self.word_object)
 
 
 class WordGridLayout(SelectableLayout, GridLayout):
@@ -171,7 +173,6 @@ class RootFloatLayout(RelativeLayout):
 
     def __init__(self, WORD_DATABASE, *args, **kwargs):
         super(RootFloatLayout, self).__init__(*args, **kwargs)
-        self.search_dict = {word.name: word for word in WORD_DATABASE}
 
     def load_word_widgets(self, search_result):
         for word_object in search_result:
@@ -184,9 +185,9 @@ class RootFloatLayout(RelativeLayout):
     def search_words(self, input):
         search_result = []
         if(len(input) != 0):
-            for key in self.search_dict:
+            for key in WORD_SEARCH_DICT:
                 if(input in key[0:len(input)]):
-                    search_result.append(self.search_dict[key])
+                    search_result.append(WORD_SEARCH_DICT[key])
                 else:
                     try:
                         self.ids.SelectableGL.clear_widgets()
