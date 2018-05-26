@@ -2,6 +2,11 @@ from testdatabase import generate_test_word_database
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 import string
+import requests
+from kivy.core.audio import SoundLoader
+import os
+from kivy.clock import Clock
+from functools import partial
 
 
 def word_description(word):
@@ -44,11 +49,65 @@ def word_description(word):
     return main_string
 
 
+def short_meaning(word):
+    short_meaning_string = ""
+    for i, x in enumerate(word.definitions):
+        definitions = '.\n'.join(word.definitions[x]['definition'])
+        definition_string = f"""[size=18][b]({'i'*(i+1)}) {x}: [/size][size=16]{definitions}[/size][/b]
+"""
+        short_meaning_string = short_meaning_string + definition_string
+
+    return short_meaning_string
+
+
+def play(word):
+    file_name = word.audio.split('/')[-1]
+    temp_dir = os.getcwd() + '\\temp\\'
+    fpath = temp_dir + file_name
+    if file_name not in os.listdir(temp_dir):
+        r = requests.get(word.audio)
+        with open(fpath, 'wb') as f:
+            f.write(r.content)
+    sound = SoundLoader.load(fpath)
+    sound.play()
+    sound.bind(on_stop=unload_sound)
+
+
+def unload_sound(instance):
+    instance.unload()
+
+
+def delete_file():
+        # print(file, sound, dt)
+        cwd = os.getcwd()
+        file = cwd + '\\temp' + '\\audiotemp.mp3'
+        os.remove(file)
+
+
 class WordDescTest(FloatLayout):
     b = generate_test_word_database()
     a = b[34]
     a.definitions['Adjective']['examples'].append("MY VERY OWN")
     ms = word_description(a)
+    url = 'http://audio.oxforddictionaries.com/en/mp3/xconscientious_gb_2.mp3'
+    r = requests.get(url)
+
+    def play_mp3(self, r):
+
+        cwd = os.getcwd()
+        file = cwd + '\\temp' + '\\audiotemp.mp3'
+        with open(file, 'wb') as f:
+            f.write(r.content)
+        sound = SoundLoader.load(file)
+        sound.play()
+
+        Clock.schedule_once(partial(self.delete_file, file, sound), 4)
+
+
+    def delete_file(self, file, sound, dt):
+        print(file, sound, dt)
+        sound.unload()
+        os.remove(file)
 
 
 class WordDescApp(App):
@@ -62,6 +121,8 @@ def main():
 
 
 if __name__ == '__main__':
+
+    # play_mp3(r)
     main()
 
 # DEBUGGING:
