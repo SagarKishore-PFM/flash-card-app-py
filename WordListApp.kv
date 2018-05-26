@@ -1,6 +1,7 @@
 #:kivy 1.10.0
 #:import generate_test_word_database testdatabase.generate_test_word_database
 #:import SelectableGridLayout stacklistscreen.SelectableGridLayout
+#:import RETextInput stacklistscreen.RETextInput
 #: set WORD_DATABASE generate_test_word_database()
 <ViewWordButton>:
     pos_hint: {'x': 0.05, 'y': 0.5}
@@ -18,9 +19,10 @@
 
 
 <WordRelativeLayout>:
+    id: WRL
     canvas.before:
         Color:
-            rgba: 1, 1, 1, 0.5
+            rgba: 1, 0, 1, 0.5
         Rectangle:
             pos: 0, 0
             size: self.size
@@ -37,9 +39,29 @@
                 size: self.size
 
     Label:
-        id: WordNameLabel
-        pos: 100, 80
-        font_size: 30
+        id: WordNameLbl
+        pos_hint: {'x': 0.05, 'y': 0.3}
+        font_size: 24
+        bold: True
+        halign: 'left'
+        valign: 'middle'
+        size: WRL.size
+        texture_size: self.size
+        text_size: self.width, None
+
+    Label:
+
+        id: WordMeaningLbl
+        pos_hint: {'x': 0.08, 'y': -0.18}
+        markup: True
+        size: WRL.size #[0] * 0.8, WRL.size[1] * 0.8
+        texture_size: self.size
+        # height: self.texture_size[1]
+        text_size: self.width, None
+        halign: 'left'
+        valign: 'middle'
+
+
 
 <SelectableGridLayout>:
     canvas:
@@ -50,11 +72,11 @@
             size: self.size
     multiselect: False
     touch_multiselect: False
-    row_force_default: True
-    cols: 2
+    row_force_default: False
+    cols: 1
     padding: 10, 10
     spacing: 10, 10
-    row_default_height: 200
+    row_default_height: 100
     col_force_default: False
     col_default_width: 200
     pos_hint: {'center_x': 0.5}
@@ -90,7 +112,7 @@
                 pos: 0, 0
                 size: self.size
 
-        TextInput:
+        RETextInput:
             id: TextIP
             size_hint: 0.85, 0.1
             pos_hint: {'center_x': 0.5, 'y':0.85}
@@ -115,6 +137,7 @@
             halign: 'right'
             valign: 'middle'
             disabled: AddWordPopup.error_disabled
+
         ScrollView:
             top: FL.height
             width: FL.width
@@ -147,6 +170,7 @@
                 disabled: AddWordPopup.button_disabled
                 markup: True
                 padding: 100, 100
+
         Button:
             id: SaveChangesBtn
             pos_hint: {'x':0.7, 'y': 0.1}
@@ -251,7 +275,7 @@
             pos: 0, 0
             size: self.size
 
-    TextInput:
+    RETextInput:
         id: SearchBar
         pos_hint: {'center_x': 0.5, 'y': 0.8}
         size_hint: 0.7,0.1
