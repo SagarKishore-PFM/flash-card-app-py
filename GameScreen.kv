@@ -10,6 +10,12 @@
 <RootFloatLayout>:
     id: RootFL
 
+    Button:
+        text: 'Save Changes'
+        pos_hint: {'x': 0.1, 'y': 0.8}
+        size_hint: 0.1,0.2
+        on_release: root.save_changes()
+
     ProgressBar:
         id: NewProgressBar
         max: root.max_value
@@ -126,6 +132,7 @@
             text: 'Audio'
             size_hint: 0.1,0.2
             pos_hint: {'x': 0.6, 'y': 0.6}
+            on_release: root.parent.pronunciation()
 
     BoxLayout:
         canvas.before:
