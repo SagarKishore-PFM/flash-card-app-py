@@ -14,15 +14,17 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.animation import Animation
 from kivy.properties import NumericProperty
 from kivy.properties import ObjectProperty
+from kivy.properties import StringProperty
 from kivy.uix.label import Label
 from kivy.clock import Clock
 
 from random import randrange
+import requests
 
 from testdatabase import generate_test_stack_database
-from helperfuncs import word_description
+from helperfuncs import word_description, delete_file, play
 
-selected_stack = generate_test_stack_database()[0]
+select_stack = generate_test_stack_database()[0]
 
 # PRE BETA
 
@@ -50,14 +52,14 @@ class RootFloatLayout(FloatLayout):
                  4: set(),
                  5: set(),
                  6: set(),
-                 -1: set(selected_stack.words), }
-    selected_stack = selected_stack
-    val = ObjectProperty(rank_dict)
+                 -1: set(select_stack.words), }
+    game_stack = select_stack
     max_value = NumericProperty(-1)
+    # rank_dict = game_stack.rank_dict
 
     def __init__(self, *args, **kwargs):
         super(RootFloatLayout, self).__init__(*args, **kwargs)
-        self.max_value = len(selected_stack.words)
+        self.max_value = self.game_stack.size
         self.AL = AnimatedLayout()
         self.next_word()
         self.add_widget(self.AL)
@@ -142,10 +144,20 @@ class RootFloatLayout(FloatLayout):
         self.ids.ReviewingProgressBar.value = len(reviewing_set)
         self.ids.LearningProgressBar.value = len(self.rank_dict[0])
 
-        self.ids.NewLabel.text = f'New words left {len(self.rank_dict[-1])} / {self.max_value}'
-        self.ids.MasteredLabel.text = f'Mastered {len(self.rank_dict[6])} / {self.max_value} words'
-        self.ids.ReviewingLabel.text = f'Reviewing {len(reviewing_set)} / {self.max_value} words'
-        self.ids.LearningLabel.text = f'Learning {len(self.rank_dict[0])} / {self.max_value} words'
+        self.ids.NewLabel.text = \
+            f'New words left {len(self.rank_dict[-1])} / {self.max_value}'
+        self.ids.MasteredLabel.text = \
+            f'Mastered {len(self.rank_dict[6])} / {self.max_value} words'
+        self.ids.ReviewingLabel.text = \
+            f'Reviewing {len(reviewing_set)} / {self.max_value} words'
+        self.ids.LearningLabel.text = \
+            f'Learning {len(self.rank_dict[0])} / {self.max_value} words'
+
+    def save_changes(self):
+        self.rank_dict[self.AL.rank].add(self.AL.word)
+        select_stack.rank_dict = self.rank_dict
+        # REPLACE THE NEXT LINE WITH EXITING FROM THE SCREEN
+        self.rank_dict[self.AL.rank].remove(self.AL.word)
 
 
 class AnimatedLayout(BoxLayout):
@@ -197,11 +209,19 @@ class AnimatedLayout(BoxLayout):
             self.parent.next_word((self.word, 6))
         else:
             self.parent.next_word((self.word, self.rank + 1))
+        self.response = None
         self.slide_animation()
+        # delete_file()
+        print(self.parent.rank_dict)
 
     def no(self):
         self.parent.next_word((self.word, 0))
         self.slide_animation()
+        print(self.parent.rank_dict)
+        # delete_file()
+
+    def pronunciation(self):
+        play(self.word)
 
 
 class FrontFace(BoxLayout):
