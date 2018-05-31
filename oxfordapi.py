@@ -46,11 +46,16 @@ def getdefinitions(word_object, word_id):
             AudioLink = lex['pronunciations'][0]['audioFile']
         except KeyError:
             pass
-        sense = lex['entries'][0]['senses'][0]
         try:
-            lexentry['definition'] = sense['definitions']
+            sense = lex['entries'][0]['senses'][0]
+            try:
+                lexentry['definition'] = sense['definitions']
+            except KeyError:
+                continue
         except KeyError:
-            continue
+            derivativeOf = lex['derivativeOf'][0]['text']
+            status = False, r.status_code, derivativeOf
+            return status
         lexentry['examples'] = []
         try:
             for examples in sense['examples']:
@@ -138,10 +143,24 @@ def main(name=None):
     if name is None:
         name = 'hypochondriac'
     a = Word(name)
-    a, status = addword(a)
-    repr(a)
+    a, status1, status2 = addword(a)
     pp.pprint(a)
-
+    pp.pprint(status1)
+    pp.pprint(status2)
 
 if __name__ == '__main__':
-    main()
+    main('venality')
+
+
+# name = 'venality'
+# pp = PrettyPrinter(indent=4)
+# if name is None:
+#     name = 'hypochondriac'
+# a = Word(name)
+# a, status1, status2 = addword(a)
+# repr(a)
+# pp.pprint(a)
+# if(status1[2]):
+#     a = Word(status1[2])
+#     a, s1, s2 = addword(a)
+
