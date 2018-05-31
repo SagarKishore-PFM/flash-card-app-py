@@ -14,14 +14,14 @@ class Stack:
     def __init__(self, name, **kwargs):
         self.name = name
         self.words = []
-        self._rank_dict = {0: set(),
-                           1: set(),
-                           2: set(),
-                           3: set(),
-                           4: set(),
-                           5: set(),
-                           6: set(),
-                           -1: set(self.words), }
+        self._rank_dict = {'-1': set(self.words),
+                           '0': set(),
+                           '1': set(),
+                           '2': set(),
+                           '3': set(),
+                           '4': set(),
+                           '5': set(),
+                           '6': set(),}
 
     @property
     def rank_dict(self):
@@ -32,14 +32,14 @@ class Stack:
         self._rank_dict = value
 
     def refresh_rank_dict(self):
-        self.rank_dict =  {0: set(),
-                           1: set(),
-                           2: set(),
-                           3: set(),
-                           4: set(),
-                           5: set(),
-                           6: set(),
-                           -1: set(self.words), }
+        self.rank_dict = {'-1': set(self.words),
+                          '0': set(),
+                          '1': set(),
+                          '2': set(),
+                          '3': set(),
+                          '4': set(),
+                          '5': set(),
+                          '6': set(),}
 
     @property
     def size(self):
