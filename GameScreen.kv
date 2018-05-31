@@ -2,172 +2,172 @@
 #:import generate_test_stack_database testdatabase.generate_test_stack_database
 #: set selected_stack generate_test_stack_database()[0]
 
-<GameScreen>:
-    RootFloatLayout:
-        id: RootFL
+# <GameScreen>:
+#     RootFloatLayout:
+#         id: RootFL
 
 
-<RootFloatLayout>:
-    id: RootFL
+# <RootFloatLayout>:
+#     id: RootFL
 
-    Button:
-        text: 'Save Changes'
-        pos_hint: {'x': 0.1, 'y': 0.8}
-        size_hint: 0.1,0.2
-        on_release: root.save_changes()
+#     Button:
+#         text: 'Save Changes'
+#         pos_hint: {'x': 0.1, 'y': 0.8}
+#         size_hint: 0.1,0.2
+#         on_release: root.save_changes()
 
-    ProgressBar:
-        id: NewProgressBar
-        max: root.max_value
-        pos_hint: {'center_x': 0.5, 'y': 0.35}
-        size_hint: 0.6, 0.05
+#     ProgressBar:
+#         id: NewProgressBar
+#         max: root.max_value
+#         pos_hint: {'center_x': 0.5, 'y': 0.35}
+#         size_hint: 0.6, 0.05
 
-    ProgressLabel:
-        id: NewLabel
-        pos_hint: {'center_x': 0.5, 'y': -0.1}
-        text: f'New words left {self.occupancy} / {root.max_value}'
+#     ProgressLabel:
+#         id: NewLabel
+#         pos_hint: {'center_x': 0.5, 'y': -0.1}
+#         text: f'New words left {self.occupancy} / {root.max_value}'
 
-    ProgressBar:
-        id: MasteredProgressBar
-        max: root.max_value
-        pos_hint: {'center_x': 0.5, 'y':0.25}
-        size_hint: 0.6, 0.05
+#     ProgressBar:
+#         id: MasteredProgressBar
+#         max: root.max_value
+#         pos_hint: {'center_x': 0.5, 'y':0.25}
+#         size_hint: 0.6, 0.05
 
-    ProgressLabel:
-        id: MasteredLabel
-        pos_hint: {'center_x': 0.5, 'y': -0.2}
-        text: f'Mastered {self.occupancy} / {root.max_value} words'
+#     ProgressLabel:
+#         id: MasteredLabel
+#         pos_hint: {'center_x': 0.5, 'y': -0.2}
+#         text: f'Mastered {self.occupancy} / {root.max_value} words'
 
-    ProgressBar:
-        id: ReviewingProgressBar
-        max: root.max_value
-        pos_hint: {'center_x': 0.5, 'y': 0.15}
-        size_hint: 0.6, 0.05
+#     ProgressBar:
+#         id: ReviewingProgressBar
+#         max: root.max_value
+#         pos_hint: {'center_x': 0.5, 'y': 0.15}
+#         size_hint: 0.6, 0.05
 
-    ProgressLabel:
-        id: ReviewingLabel
-        pos_hint: {'center_x': 0.5, 'y': -0.3}
-        text: f'Reviewing {self.occupancy} / {root.max_value} words'
+#     ProgressLabel:
+#         id: ReviewingLabel
+#         pos_hint: {'center_x': 0.5, 'y': -0.3}
+#         text: f'Reviewing {self.occupancy} / {root.max_value} words'
 
-    ProgressBar:
-        id: LearningProgressBar
-        max: root.max_value
-        pos_hint: {'center_x': 0.5, 'y': 0.05}
-        size_hint: 0.6, 0.05
+#     ProgressBar:
+#         id: LearningProgressBar
+#         max: root.max_value
+#         pos_hint: {'center_x': 0.5, 'y': 0.05}
+#         size_hint: 0.6, 0.05
 
-    ProgressLabel:
-        id: LearningLabel
-        pos_hint: {'center_x': 0.5, 'y': -0.4}
-        text: f'Learning {len(root.rank_dict[0])} / {root.max_value} words'
+#     ProgressLabel:
+#         id: LearningLabel
+#         pos_hint: {'center_x': 0.5, 'y': -0.4}
+#         text: f'Learning {len(root.rank_dict[0])} / {root.max_value} words'
 
-<AnimatedLayout>:
-    id: AL
-    cols: 1
-    rows: 1
-    canvas.before:
-        PushMatrix
-        Color:
-            rgba: 1, 0, 0, 0.40
-        Rectangle:
-            pos: self.pos
-            size: self.size
-        Rotate:
-            angle: self.angle
-            axis: 0, 1, 0 
-            origin: self.center
-    canvas.after:
-        PopMatrix
+# <AnimatedLayout>:
+#     id: AL
+#     cols: 1
+#     rows: 1
+#     canvas.before:
+#         PushMatrix
+#         Color:
+#             rgba: 1, 0, 0, 0.40
+#         Rectangle:
+#             pos: self.pos
+#             size: self.size
+#         Rotate:
+#             angle: self.angle
+#             axis: 0, 1, 0 
+#             origin: self.center
+#     canvas.after:
+#         PopMatrix
 
-    pos_hint: {'center_x': 0.5, 'y': 0.65}
-    size_hint_x: 0.5
-    size_hint_y: 0.3
+#     pos_hint: {'center_x': 0.5, 'y': 0.65}
+#     size_hint_x: 0.5
+#     size_hint_y: 0.3
 
-<FrontFace>:
-    cols: 1
-    rows: 1
-    size_hint: 1,1
-    canvas.before:
-        Color:
-            rgba: 1, 0.51, 0.4, 0.8
-        Rectangle:
-            pos: root.pos
-            size: root.size
-    FloatLayout:
-        pos: root.pos
-        Button:
-            id: word_btn
-            text: ''
-            size_hint: 1,1
-            pos: root.pos
+# <FrontFace>:
+#     cols: 1
+#     rows: 1
+#     size_hint: 1,1
+#     canvas.before:
+#         Color:
+#             rgba: 1, 0.51, 0.4, 0.8
+#         Rectangle:
+#             pos: root.pos
+#             size: root.size
+#     FloatLayout:
+#         pos: root.pos
+#         Button:
+#             id: word_btn
+#             text: ''
+#             size_hint: 1,1
+#             pos: root.pos
 
-        Label:
-            id: rank_label
-            pos_hint: {'x': 0.35, 'y': 0.2}
-            font_size: 20
+#         Label:
+#             id: rank_label
+#             pos_hint: {'x': 0.35, 'y': 0.2}
+#             font_size: 20
 
-<BackFace>:
-    rows: 3
-    cols: 1
-    orientation: 'vertical'
-    canvas.before:
-        Color:
-            rgba: 1, 0.51, 0.8, 0.4
-        Rectangle:
-            pos: root.pos
-            size: root.size
-    RelativeLayout:
-        canvas.before:
-            Color:
-                rgba: 0, 0.51, 0.8, 0.4
-            Rectangle:
-                pos: FirstBox.pos
-                size: FirstBox.size
-        orientation: 'horizontal'
-        id: FirstBox
-        size_hint: 1,0.3
-        Label:
-            id: WordNameLabel
-            font_size: 30
-        Button:
-            text: 'Audio'
-            size_hint: 0.1,0.2
-            pos_hint: {'x': 0.6, 'y': 0.6}
-            on_release: root.parent.pronunciation()
+# <BackFace>:
+#     rows: 3
+#     cols: 1
+#     orientation: 'vertical'
+#     canvas.before:
+#         Color:
+#             rgba: 1, 0.51, 0.8, 0.4
+#         Rectangle:
+#             pos: root.pos
+#             size: root.size
+#     RelativeLayout:
+#         canvas.before:
+#             Color:
+#                 rgba: 0, 0.51, 0.8, 0.4
+#             Rectangle:
+#                 pos: FirstBox.pos
+#                 size: FirstBox.size
+#         orientation: 'horizontal'
+#         id: FirstBox
+#         size_hint: 1,0.3
+#         Label:
+#             id: WordNameLabel
+#             font_size: 30
+#         Button:
+#             text: 'Audio'
+#             size_hint: 0.1,0.2
+#             pos_hint: {'x': 0.6, 'y': 0.6}
+#             on_release: root.parent.pronunciation()
 
-    BoxLayout:
-        canvas.before:
-            Color:
-                rgba: 0.3, 0.1, 0.8, 0.4
-            Rectangle:
-                pos: SecondBox.pos
-                size: SecondBox.size
-        orientation: 'horizontal'
-        id: SecondBox
-        size_hint: 1,0.6
-        ScrollView:
-            id: SV
-            height: root.height * 0.7
-            Label:
-                id: WordDescriptionLabel
-                text: 'word desc goes here'
-                height: self.texture_size[1]
-                size_hint_y: None
-                size: SecondBox.size[0] * 0.85, SecondBox.size[1] * 0.85
-                text_size: self.width, None
-                halign: 'left'
-                valign: 'middle'
-                markup: True
-                padding: 100, 100
+#     BoxLayout:
+#         canvas.before:
+#             Color:
+#                 rgba: 0.3, 0.1, 0.8, 0.4
+#             Rectangle:
+#                 pos: SecondBox.pos
+#                 size: SecondBox.size
+#         orientation: 'horizontal'
+#         id: SecondBox
+#         size_hint: 1,0.6
+#         ScrollView:
+#             id: SV
+#             height: root.height * 0.7
+#             Label:
+#                 id: WordDescriptionLabel
+#                 text: 'word desc goes here'
+#                 height: self.texture_size[1]
+#                 size_hint_y: None
+#                 size: SecondBox.size[0] * 0.85, SecondBox.size[1] * 0.85
+#                 text_size: self.width, None
+#                 halign: 'left'
+#                 valign: 'middle'
+#                 markup: True
+#                 padding: 100, 100
 
-    BoxLayout:
-        orientation: 'horizontal'
-        id: ThirdBox
-        size_hint: 1,0.2
-        Button:
-            id: YesButton
-            text:'Yes'
-            on_release: root.parent.yes()
-        Button:
-            id: NoButton
-            text:'No'
-            on_release: root.parent.no()
+#     BoxLayout:
+#         orientation: 'horizontal'
+#         id: ThirdBox
+#         size_hint: 1,0.2
+#         Button:
+#             id: YesButton
+#             text:'Yes'
+#             on_release: root.parent.yes()
+#         Button:
+#             id: NoButton
+#             text:'No'
+#             on_release: root.parent.no()
