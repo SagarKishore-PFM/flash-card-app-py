@@ -17,14 +17,13 @@ from kivy.properties import ObjectProperty
 from kivy.properties import StringProperty
 from kivy.uix.label import Label
 from kivy.clock import Clock
-
+from kivy.lang import Builder
 from random import randrange
-import requests
 
 from testdatabase import generate_test_stack_database
 from helperfuncs import word_description, delete_file, play
 
-select_stack = generate_test_stack_database()[0]
+# select_stack = generate_test_stack_database()[0]
 
 # PRE BETA
 
@@ -39,51 +38,112 @@ select_stack = generate_test_stack_database()[0]
 #     var for Stack class
 # >> Maybe add a slide animation??
 # >> Figure out how to pass the selected stack across screens
-# >> Then use this selected stack in RootFloatLayout
 # >> Make the kivy file uniform in terms of linting
 # >> Remove the prints and make them to log instead
 
 
-class RootFloatLayout(FloatLayout):
-    rank_dict = {0: set(),
-                 1: set(),
-                 2: set(),
-                 3: set(),
-                 4: set(),
-                 5: set(),
-                 6: set(),
-                 -1: set(select_stack.words), }
-    game_stack = select_stack
-    max_value = NumericProperty(-1)
-    # rank_dict = game_stack.rank_dict
+class GameScreen(Screen):
+    Builder.load_string("""
+<GameScreen>:
+    name: 'game screen'
+    id: RootFL
 
-    def __init__(self, *args, **kwargs):
-        super(RootFloatLayout, self).__init__(*args, **kwargs)
+    Button:
+        text: 'Save Changes'
+        pos_hint: {'x': 0.1, 'y': 0.8}
+        size_hint: 0.1,0.2
+        on_release: root.save_changes()
+
+    BoxLayout:
+        orientation: 'vertical'
+        pos_hint: {'center_x': 0.5, 'y': 0.1}
+        size_hint: 0.5,0.3
+        padding: 10,10
+        spacing: 5
+
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 0.0
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        GamePFL:
+            id: NewPFL
+            # max_value: root.max_value
+
+        GamePFL:
+            id: MasteredPFL
+            # max_value: root.max_value
+
+        GamePFL:
+            id: ReviewingPFL
+            # max_value: root.max_value
+
+        GamePFL:
+            id: LearningPFL
+            # max_value: root.max_value
+
+
+<GamePFL@ProgressFloatLayout>:
+    canvas.before:
+        Color:
+            rgba: 1, 0, 1, 0.0
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    ProgressBar:
+        id: PB
+        pos_hint: {'center_x': 0.5, 'y': 0.3}
+        size_hint: 0.8, 0.05
+        # max: root.max_value
+
+    Label:
+        id: Lbl
+        pos_hint: {'center_x': 0.5, 'y': 0.15}
+        font_size: 18
+""")
+    game_stack = ObjectProperty(None)
+
+    def on_enter(self, *args, **kwargs):
+        super(GameScreen, self).__init__(*args, **kwargs)
+        # select_stack.refresh_rank_dict()
+        # self.game_stack = select_stack
+        self.rank_dict = self.game_stack.rank_dict
         self.max_value = self.game_stack.size
+        self.ids.NewPFL.ids.PB.max = self.max_value
+        self.ids.MasteredPFL.ids.PB.max = self.max_value
+        self.ids.ReviewingPFL.ids.PB.max = self.max_value
+        self.ids.LearningPFL.ids.PB.max = self.max_value
+
         self.AL = AnimatedLayout()
         self.next_word()
         self.add_widget(self.AL)
+        self.update_progressbars()
+
+    def on_leave(self):
+        self.clear_widgets()
 
     def next_word(self, word_rank=None):
         old_word = None
         if(word_rank is not None):
             old_word, new_rank = word_rank
-            print(f'old word is {old_word.name} and will be added to rank {new_rank}')
+            print(f'{old_word.name} will be added to rank {new_rank}')
             self.rank_dict[new_rank].add(old_word)
             self.update_progressbars()
         # bottom1 = 'Not yet used1'
         # bottom2 = 'Not yet used2'
-        if(len(self.rank_dict[-1]) == 0):
+        if(len(self.rank_dict['-1']) == 0):
             bottom1, bottom2 = self.updatebottom()
 
-        if(len(self.rank_dict[0]) > 10):
+        if(len(self.rank_dict['0']) > 10):
             new_flag = False
-            if(len(self.rank_dict[0] < 16)):
+            if(len(self.rank_dict['0']) < 16):
                 new_flag = True
-                bottom1, bottom2 = self.updatebottom(new_flag)
+            bottom1, bottom2 = self.updatebottom(new_flag)
 
-        if(len(self.rank_dict[0]) < 11 and self.rank_dict[-1]):
-            bottom1 = -1
+        if(len(self.rank_dict['0']) < 11 and len(self.rank_dict['-1']) > 0):
+            bottom1 = '-1'
             bottom2 = None
         # print('bottom1 is -->', bottom1)
         # print('bottom2 is -->', bottom2)
@@ -96,7 +156,7 @@ class RootFloatLayout(FloatLayout):
             except KeyError:
                 pass
         # print(f"sending word {word.name} to AL of rank {rank}")
-        self.AL.rank, self.AL.word = (rank, word)
+        self.AL.rank, self.AL.word = (str(rank), word)
 
         print(f'selected word {word.name} from rank {rank}')
         print('-------------------------------------------------------')
@@ -110,21 +170,21 @@ class RootFloatLayout(FloatLayout):
         print('bottom1 is -->', bottom1)
         print('bottom2 is -->', bottom2)
         if(p < 8 or bottom2 is None):
-            return (self.rank_dict[bottom1].pop(), bottom1)
+            return (self.rank_dict[str(bottom1)].pop(), str(bottom1))
         else:
-            return (self.rank_dict[bottom2].pop(), bottom2)
+            return (self.rank_dict[str(bottom2)].pop(), str(bottom2))
 
     def updatebottom(self, new_flag=False):
         rd = self.rank_dict
         if(new_flag):
             lenlist = [len(rd[x]) for x in rd]
         else:
-            lenlist = [0] + [len(rd[x]) for x in rd if x != -1]
+            lenlist = [0] + [len(rd[x]) for x in rd if x != '-1']
         print('lenlist is -->', lenlist)
         non_zero_list = []
         for i, x in enumerate(lenlist):
             if(x > 0):
-                non_zero_list.append(i-1)
+                non_zero_list.append(str(i-1))
         try:
             bottom1, bottom2 = non_zero_list[:2]
         except ValueError:
@@ -134,36 +194,155 @@ class RootFloatLayout(FloatLayout):
         return (bottom1, bottom2)
 
     def update_progressbars(self):
-        reviewing_set = self.rank_dict[1].union(self.rank_dict[2],
-                                                self.rank_dict[3],
-                                                self.rank_dict[4],
-                                                self.rank_dict[5])
 
-        self.ids.NewProgressBar.value = len(self.rank_dict[-1])
-        self.ids.MasteredProgressBar.value = len(self.rank_dict[6])
-        self.ids.ReviewingProgressBar.value = len(reviewing_set)
-        self.ids.LearningProgressBar.value = len(self.rank_dict[0])
+        reviewing_set = self.rank_dict['1'].union(self.rank_dict['2'],
+                                                  self.rank_dict['3'],
+                                                  self.rank_dict['4'],
+                                                  self.rank_dict['5'])
 
-        self.ids.NewLabel.text = \
-            f'New words left {len(self.rank_dict[-1])} / {self.max_value}'
-        self.ids.MasteredLabel.text = \
-            f'Mastered {len(self.rank_dict[6])} / {self.max_value} words'
-        self.ids.ReviewingLabel.text = \
-            f'Reviewing {len(reviewing_set)} / {self.max_value} words'
-        self.ids.LearningLabel.text = \
-            f'Learning {len(self.rank_dict[0])} / {self.max_value} words'
+        self.ids.NewPFL.ids.PB.value = len(self.rank_dict['-1'])
+        self.ids.MasteredPFL.ids.PB.value = len(self.rank_dict['6'])
+        self.ids.ReviewingPFL.ids.PB.value = len(reviewing_set)
+        self.ids.LearningPFL.ids.PB.value = len(self.rank_dict['0'])
+
+        self.ids.NewPFL.ids.Lbl.text = \
+            f"New words left {len(self.rank_dict['-1'])} / {self.max_value}"
+        self.ids.MasteredPFL.ids.Lbl.text = \
+            f"Mastered {len(self.rank_dict['6'])} / {self.max_value} words"
+        self.ids.ReviewingPFL.ids.Lbl.text = \
+            f"Reviewing {len(reviewing_set)} / {self.max_value} words"
+        self.ids.LearningPFL.ids.Lbl.text = \
+            f"Learning {len(self.rank_dict['0'])} / {self.max_value} words"
 
     def save_changes(self):
         self.rank_dict[self.AL.rank].add(self.AL.word)
-        select_stack.rank_dict = self.rank_dict
+        # select_stack.rank_dict = self.rank_dict
         # REPLACE THE NEXT LINE WITH EXITING FROM THE SCREEN
-        self.rank_dict[self.AL.rank].remove(self.AL.word)
+        # self.rank_dict[self.AL.rank].remove(self.AL.word)
+        self.manager.current = 'stack screen'
+
+
+class ProgressFloatLayout(FloatLayout):
+    max_value = NumericProperty(-1)
 
 
 class AnimatedLayout(BoxLayout):
+    Builder.load_string("""
+<AnimatedLayout>:
+    id: AL
+    cols: 1
+    rows: 1
+    canvas.before:
+        PushMatrix
+        Color:
+            rgba: 1, 0, 0, 0.40
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Rotate:
+            angle: self.angle
+            axis: 0, 1, 0
+            origin: self.center
+    canvas.after:
+        PopMatrix
+    pos_hint: {'center_x': 0.5, 'y': 0.65}
+    size_hint_x: 0.5
+    size_hint_y: 0.3
+
+<FrontFace>:
+    cols: 1
+    rows: 1
+    size_hint: 1,1
+    canvas.before:
+        Color:
+            rgba: 1, 0.51, 0.4, 0.8
+        Rectangle:
+            pos: root.pos
+            size: root.size
+    FloatLayout:
+        pos: root.pos
+        Button:
+            id: word_btn
+            text: ''
+            size_hint: 1,1
+            pos: root.pos
+
+        Label:
+            id: rank_label
+            pos_hint: {'x': 0.35, 'y': 0.2}
+            font_size: 20
+
+<BackFace>:
+    rows: 3
+    cols: 1
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: 1, 0.51, 0.8, 0.4
+        Rectangle:
+            pos: root.pos
+            size: root.size
+    RelativeLayout:
+        canvas.before:
+            Color:
+                rgba: 0, 0.51, 0.8, 0.4
+            Rectangle:
+                pos: FirstBox.pos
+                size: FirstBox.size
+        orientation: 'horizontal'
+        id: FirstBox
+        size_hint: 1,0.3
+        Label:
+            id: WordNameLabel
+            font_size: 30
+        Button:
+            text: 'Audio'
+            size_hint: 0.1,0.2
+            pos_hint: {'x': 0.6, 'y': 0.6}
+            on_release: root.parent.pronunciation()
+
+    BoxLayout:
+        canvas.before:
+            Color:
+                rgba: 0.3, 0.1, 0.8, 0.4
+            Rectangle:
+                pos: SecondBox.pos
+                size: SecondBox.size
+        orientation: 'horizontal'
+        id: SecondBox
+        size_hint: 1,0.6
+        ScrollView:
+            id: SV
+            height: root.height * 0.7
+            Label:
+                id: WordDescriptionLabel
+                text: 'word desc goes here'
+                height: self.texture_size[1]
+                size_hint_y: None
+                size: SecondBox.size[0] * 0.85, SecondBox.size[1] * 0.85
+                text_size: self.width, None
+                halign: 'left'
+                valign: 'middle'
+                markup: True
+                padding: 100, 100
+
+    BoxLayout:
+        orientation: 'horizontal'
+        id: ThirdBox
+        size_hint: 1,0.2
+        Button:
+            id: YesButton
+            text:'Yes'
+            on_release: root.parent.yes()
+        Button:
+            id: NoButton
+            text:'No'
+            on_release: root.parent.no()
+""")
+
     angle = NumericProperty(0)
     word = ObjectProperty(None)
-    rank = NumericProperty(-2)
+    rank = StringProperty()
 
     def on_word(self, animated_layout, new_word):
         self.draw_front_face()
@@ -205,17 +384,16 @@ class AnimatedLayout(BoxLayout):
         self.add_widget(bf)
 
     def yes(self):
-        if(self.rank < 0 or self.rank == 6):
-            self.parent.next_word((self.word, 6))
+        if(self.rank < '0' or self.rank == '6'):
+            self.parent.next_word((self.word, '6'))
         else:
-            self.parent.next_word((self.word, self.rank + 1))
-        self.response = None
+            self.parent.next_word((self.word, str(int(self.rank) + 1)))
         self.slide_animation()
         # delete_file()
         print(self.parent.rank_dict)
 
     def no(self):
-        self.parent.next_word((self.word, 0))
+        self.parent.next_word((self.word, '0'))
         self.slide_animation()
         print(self.parent.rank_dict)
         # delete_file()
@@ -236,10 +414,6 @@ class ProgressLabel(Label):
     occupancy = NumericProperty(0)
 
 
-class GameScreen(Screen):
-    pass
-
-
 class GameScreenApp(App):
 
     def build(self):
@@ -247,13 +421,13 @@ class GameScreenApp(App):
 
 
 def rank_text(rank):
-    if(rank < 0):
+    if(rank < '0'):
         return ('New Word', [1, 1, 1, 1])
-    if(rank == 0):
+    if(rank == '0'):
         return ('Learning', [1, 0, 0, 1])
-    if(0 < rank < 6):
+    if('0' < rank < '6'):
         return ('Reviewing', [1, 1, 0, 1])
-    if(rank == 6):
+    if(rank == '6'):
         return ('Mastered', [0, 1, 0, 1])
 
 
