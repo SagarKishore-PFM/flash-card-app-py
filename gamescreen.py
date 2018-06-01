@@ -20,8 +20,7 @@ from kivy.clock import Clock
 from kivy.lang import Builder
 from random import randrange
 
-from testdatabase import generate_test_stack_database
-from helperfuncs import word_description, delete_file, play
+from helperfuncs import word_description, play
 
 # select_stack = generate_test_stack_database()[0]
 
@@ -107,8 +106,6 @@ class GameScreen(Screen):
 
     def on_enter(self, *args, **kwargs):
         super(GameScreen, self).__init__(*args, **kwargs)
-        # select_stack.refresh_rank_dict()
-        # self.game_stack = select_stack
         self.rank_dict = self.game_stack.rank_dict
         self.max_value = self.game_stack.size
         self.ids.NewPFL.ids.PB.max = self.max_value
@@ -131,8 +128,7 @@ class GameScreen(Screen):
             print(f'{old_word.name} will be added to rank {new_rank}')
             self.rank_dict[new_rank].add(old_word)
             self.update_progressbars()
-        # bottom1 = 'Not yet used1'
-        # bottom2 = 'Not yet used2'
+
         if(len(self.rank_dict['-1']) == 0):
             bottom1, bottom2 = self.updatebottom()
 
@@ -216,9 +212,7 @@ class GameScreen(Screen):
 
     def save_changes(self):
         self.rank_dict[self.AL.rank].add(self.AL.word)
-        # select_stack.rank_dict = self.rank_dict
-        # REPLACE THE NEXT LINE WITH EXITING FROM THE SCREEN
-        # self.rank_dict[self.AL.rank].remove(self.AL.word)
+        self.game_stack.rank_dict = self.rank_dict
         self.manager.current = 'stack screen'
 
 
@@ -389,14 +383,12 @@ class AnimatedLayout(BoxLayout):
         else:
             self.parent.next_word((self.word, str(int(self.rank) + 1)))
         self.slide_animation()
-        # delete_file()
         print(self.parent.rank_dict)
 
     def no(self):
         self.parent.next_word((self.word, '0'))
         self.slide_animation()
         print(self.parent.rank_dict)
-        # delete_file()
 
     def pronunciation(self):
         play(self.word)
