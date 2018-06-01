@@ -4,9 +4,7 @@ Created on Saturday, April 9th 2018
 
 @author: sagar
 """
-from functools import partial
 
-from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.properties import ObjectProperty
@@ -22,20 +20,12 @@ from compound_selection import SelectableLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.selectableview import SelectableView
 from kivy.uix.textinput import TextInput
-from kivy.uix.scrollview import ScrollView
-from kivy.clock import Clock
 from kivy.lang import Builder
 
 from functools import partial
 import re
 
-from testdatabase import generate_test_stack_database
-from testdatabase import generate_test_word_database
 from stack import Stack
-
-
-# from wordlistscreen import WordRelativeLayout
-
 
 # ChangeLog:
 
@@ -57,7 +47,7 @@ from stack import Stack
 # >> Add buttons to navigate to Word List screen and DataBaseScreen(?)
 # >> Add Delete Stack Popup
 # >> Add logic that saves the changes often and/or upon exiting the application
-# >> Rearrange and cleaup the .kv file
+# >> Rearrange and cleanup the .kv file
 # >> Cleanup the code
 
 # >> View Stack:
@@ -88,8 +78,8 @@ from stack import Stack
 # STACK_NAMES = [stack.name for stack in STACK_DATABASE]
 # WORD_SEARCH_DICT = {word.name: word for word in WORD_DATABASE}
 
-STACK_DATABASE = generate_test_stack_database()
-WORD_DATABASE = generate_test_word_database()
+STACK_DATABASE = []
+WORD_DATABASE = []
 STACK_NAMES = ''
 WORD_SEARCH_DICT = ''
 
@@ -173,9 +163,7 @@ class StackRelativeLayout(SelectableLayout, RelativeLayout):
 
     def __init__(self, stack_object, *args, **kwargs):
         self.stack_object = stack_object
-        self.stack_object.refresh_rank_dict()
         super(StackRelativeLayout, self).__init__(*args, **kwargs)
-        # Clock.schedule_once(self.redraw, 0)
         self.redraw()
 
     def redraw(self, dt=0):
@@ -222,7 +210,6 @@ class ViewStackButton(Button):
         game_screen = manager.get_screen('game screen')
         game_screen.game_stack = selected_stack
         manager.current = 'game screen'
-        print(f"Bout to send the stack {selected_stack} to gamescreen")
 
 
 class ViewStackPopup(Popup):
@@ -238,7 +225,7 @@ class ViewStackPopup(Popup):
         pos: VSP.pos
 
         Label:
-            canvas:
+            canvas.before:
                 Color:
                     rgba: 1, 1, 1, 1.0
                 Rectangle:
@@ -341,24 +328,6 @@ class ViewStackPopup(Popup):
         id: Lbl
         pos_hint: {'center_x': 0.5, 'y': 0.15}
         font_size: 18
-
-# <WordSelectableGridLayout@SelectableGridLayout>:
-#     canvas:
-#         Color:
-#             rgba: 1, 1, 1, 1.0
-#         Rectangle:
-#             pos: self.pos
-#             size: self.size
-#     multiselect: False
-#     touch_multiselect: False
-#     row_force_default: False
-#     cols: 1
-#     padding: 10, 10
-#     spacing: 10, 10
-#     row_default_height: 100
-#     col_force_default: False
-#     col_default_width: 200
-#     on_minimum_height: self.height = self.minimum_height
 """)
 
     max_value = NumericProperty(-1)
@@ -373,13 +342,13 @@ class ViewStackPopup(Popup):
         self.rank_dict = self.stack_object.rank_dict
         self.max_value = self.stack_object.size
 
-        # self.load_word_widgets()
-
         self.word_list_view = self.ids.WordViewList
         self.word_object_list = self.stack_object.words
         self.generate_word_listview()
         self.update_progressbars()
-        self.button_disabled = self.stack_object.size == 0
+        self.button_disabled = self.stack_object.size < 3
+
+        # self.load_word_widgets()
 
     # def load_word_widgets(self):
     #     SGL = self.ids.ViewWordSGL
@@ -404,9 +373,9 @@ class ViewStackPopup(Popup):
 
     def update_progressbars(self):
         reviewing_set = self.rank_dict['1'].union(self.rank_dict['2'],
-                                                self.rank_dict['3'],
-                                                self.rank_dict['4'],
-                                                self.rank_dict['5'])
+                                                  self.rank_dict['3'],
+                                                  self.rank_dict['4'],
+                                                  self.rank_dict['5'])
 
         self.ids.NewPFL.ids.PB.value = len(self.rank_dict['-1'])
         self.ids.MasteredPFL.ids.PB.value = len(self.rank_dict['6'])
@@ -441,6 +410,8 @@ class CreateStackButton(Button):
         new_stack = Stack(popup.ids.StackName.text)
         new_stack.words = popup.word_list_view.adapter.data
         new_stack.refresh_rank_dict()
+        STACK_DATABASE.append(new_stack)
+        db_init()
         SelectableGridLayout.add_widget(StackRelativeLayout(new_stack))
         popup.dismiss()
 
@@ -487,7 +458,7 @@ class CreateStackPopup(Popup):
             size_hint: 0.4,0.1
             hint_text: "Enter Stack Name...."
             on_text: root.validate_text_input()
-            on_text_validatate: root.open_edit_words_popup()
+            on_text_validate: root.open_edit_words_popup()
 
         Label:
             id: ErrorMessage
@@ -498,7 +469,7 @@ class CreateStackPopup(Popup):
                 Rectangle:
                     pos: self.pos
                     size: self.size
-            text: "POSITTION"
+            text: ""
             size_hint: None, None
             font_size: 24
             size: self.texture_size
@@ -753,7 +724,7 @@ class EditWordsPopup(Popup):
                 id: ThesaurusWordGL
 
 <ThesaurusWordGridLayout@SelectableGridLayout>:
-    canvas:
+    canvas.before:
         Color:
             rgba: 1, 1, 1, 0.2
         Rectangle:
@@ -811,13 +782,6 @@ class EditWordsPopup(Popup):
                                                    cls=WordListItemButton)
         self.search_word_list_view.adapter = self.search_list_adapter
         self.search_word_list_view.adapter.bind(on_selection_change=self.generate_thesaurus_listview)
-
-    # TODO:
-    # >> Need to create a floatlayout that shows info for the word
-
-    # def thesaurus_args_converter(self, row_index, rec):
-
-    #     return {'word_object': rec, }
 
     def generate_thesaurus_listview(self,
                                     word_list_adapter, *args):
@@ -960,7 +924,7 @@ Changing the Words in the Stack will reset the progress"
                 Rectangle:
                     pos: self.pos
                     size: self.size
-            text: "POSITTION"
+            text: ""
             size_hint: None, None
             font_size: 24
             size: self.texture_size
@@ -1022,8 +986,7 @@ Changing the Words in the Stack will reset the progress"
 
     def save_changes_to_stack_object(self):
         self.stack_object.name = self.stack_name_txt.text
-        # self.stack_object.refresh_rank_dict()
-        # return self.stack_object
+        db_init()
 
     def args_converter(self, row_indext, rec):
 
@@ -1066,9 +1029,69 @@ Changing the Words in the Stack will reset the progress"
         self.button_disabled = cond1 or cond2
         if(self.button_disabled):
             self.ids.ErrorMessage.text = \
-                f'Stack Name must be unique and contain more than {min_len} letters'    
+                f'Stack Name must be unique and contain more than {min_len} letters'
         else:
             self.ids.ErrorMessage.text = ""
+
+
+class DeleteStackButton(Button):
+
+    Builder.load_string("""
+<DeleteStackButton>:
+    pos_hint: {'x': 0.8, 'y': 0.2}
+    size_hint: 0.15, 0.15
+""")
+
+    def open_popup(self, selectable_grid_layout):
+        popup = DeleteStackPopup()
+        popup.ids.DeleteBtn.bind(on_release=partial(self.delete_stack,
+                                                    popup,
+                                                    selectable_grid_layout
+                                                    ))
+        popup.open()
+
+    def delete_stack(self, popup, selectable_grid_layout, instance):
+        selected_stack = selectable_grid_layout.return_selected_stack_layout()
+        selectable_grid_layout.remove_widget(selected_stack)
+        global STACK_DATABASE
+        STACK_DATABASE.remove(selected_stack.stack_object)
+        db_init()
+        popup.dismiss()
+
+
+class DeleteStackPopup(Popup):
+
+    Builder.load_string("""
+<DeleteStackPopup>:
+    title: ""
+    size_hint: 0.4,0.3
+    separator_color: [1, 1, 1, 1]
+
+    FloatLayout:
+        id: FL
+
+        Label:
+            font_size: 30
+            size_hint: None, None
+            size: self.texture_size
+            text: 'Are you sure you want to delete?'
+            halign: 'center'
+            valign: 'middle'
+            pos_hint: {'center_x': 0.5, 'y':0.65}
+
+        Button:
+            id: DeleteBtn
+            text:"YES"
+            size_hint: 0.3,0.2
+            pos_hint: {'x':0.1, 'y':0.1}
+            # disabled: True
+
+        Button:
+            text:"NEIN!"
+            size_hint: 0.3,0.2
+            pos_hint: {'x':0.6, 'y':0.1}
+            on_release: root.dismiss()
+""")
 
 
 class RETextInput(TextInput):
@@ -1095,9 +1118,9 @@ class StackListScreen(Screen):
         id: FL
         canvas.before:
             Color:
-                rgba: 1, 0, 0, 0.0
+                rgba: 0.1, 0.5, 1, 0.0
             Rectangle:
-                pos: 0, 0
+                pos: self.pos
                 size: self.size
 
         ViewStackButton:
@@ -1116,6 +1139,12 @@ class StackListScreen(Screen):
             id: CreateStackBtn
             on_release: self.open_popup(root.ids.StackSGL)
             text: "Create a new Stack"
+
+        DeleteStackButton:
+            id: DeleteStackBtn
+            text: 'Delete Stack'
+            disabled: StackSGL.button_disabled
+            on_release: self.open_popup(StackSGL)
 
         WordListButton:
             id: WordListBtn
@@ -1151,7 +1180,7 @@ class StackListScreen(Screen):
 
 
 <StackSelectableGridLayout@SelectableGridLayout>:
-    canvas:
+    canvas.before:
         Color:
             rgba: 1, 1, 1, 0.0
         Rectangle:
@@ -1170,16 +1199,23 @@ class StackListScreen(Screen):
     on_minimum_height: self.height = self.minimum_height
 """)
 
-    def __init__(self, chosen_stack_db, *args, **kwargs):
+    stack_db = ObjectProperty(None)
+    fcdb = ObjectProperty(None)
+
+    def on_enter(self, *args, **kwargs):
         super(StackListScreen, self).__init__(*args, **kwargs)
-        print(chosen_stack_db)
-        self.stack_db = chosen_stack_db
         global STACK_DATABASE
-        STACK_DATABASE = self.stack_db
+        global WORD_DATABASE
+        STACK_DATABASE = self.fcdb.stack_db
+        WORD_DATABASE = self.fcdb.word_db
+        self.stack_db = self.fcdb.stack_db
         db_init()
         self.load_stack_widgets_from_database()
 
-    def load_stack_widgets_from_database(self,):
+    def on_leave(self):
+        self.clear_widgets()
+
+    def load_stack_widgets_from_database(self):
         for stack_object in self.stack_db:
             self.add_stack_widget(stack_object)
 
