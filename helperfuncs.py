@@ -5,8 +5,57 @@ import string
 import requests
 from kivy.core.audio import SoundLoader
 import os
+import jsonpickle
 from kivy.clock import Clock
 from functools import partial
+
+
+def load_db():
+    dir_path = os.getcwd() + '\\db\\'
+    dir_, subdirs_, files_ = next(os.walk(dir_path))
+    fpaths = [dir_ + file_ for file_ in files_]
+    database_list = []
+    for path in fpaths:
+        with open(path, 'r') as fp:
+            db_ret = jsonpickle.decode(fp.read(), keys=True)
+        database_list.append(db_ret)
+    return database_list
+
+
+def save_db(database_list):
+    dir_path = os.getcwd() + '\\db\\'
+    for fcdb in database_list:
+        file_path = dir_path + fcdb.name + '.json'
+        fcdb_json = jsonpickle.encode(fcdb, keys=True)
+        with open(file_path, 'w') as fp:
+            fp.write(fcdb_json)
+
+
+def play(word):
+    file_name = word.audio.split('/')[-1]
+    temp_dir = os.getcwd() + '\\temp\\'
+    fpath = temp_dir + file_name
+    if file_name not in os.listdir(temp_dir):
+        r = requests.get(word.audio)
+        with open(fpath, 'wb') as f:
+            f.write(r.content)
+    sound = SoundLoader.load(fpath)
+    sound.play()
+    sound.bind(on_stop=unload_sound)
+
+
+def unload_sound(instance):
+    instance.unload()
+
+
+def delete_temp():
+        # print(file, sound, dt)
+        cwd = os.getcwd()
+        temp_dir = cwd + '\\temp\\'
+        dir_, subdirs_, files_ = next(os.walk(temp_dir))
+        fpaths = [temp_dir + file_ for file_ in files_]
+        for path in fpaths:
+            os.remove(path)
 
 
 def word_description(word):
@@ -60,30 +109,6 @@ def short_meaning(word):
     return short_meaning_string
 
 
-def play(word):
-    file_name = word.audio.split('/')[-1]
-    temp_dir = os.getcwd() + '\\temp\\'
-    fpath = temp_dir + file_name
-    if file_name not in os.listdir(temp_dir):
-        r = requests.get(word.audio)
-        with open(fpath, 'wb') as f:
-            f.write(r.content)
-    sound = SoundLoader.load(fpath)
-    sound.play()
-    sound.bind(on_stop=unload_sound)
-
-
-def unload_sound(instance):
-    instance.unload()
-
-
-def delete_file():
-        # print(file, sound, dt)
-        cwd = os.getcwd()
-        file = cwd + '\\temp' + '\\audiotemp.mp3'
-        os.remove(file)
-
-
 class WordDescTest(FloatLayout):
     b = generate_test_word_database()
     a = b[34]
@@ -103,7 +128,6 @@ class WordDescTest(FloatLayout):
 
         Clock.schedule_once(partial(self.delete_file, file, sound), 4)
 
-
     def delete_file(self, file, sound, dt):
         print(file, sound, dt)
         sound.unload()
@@ -117,12 +141,9 @@ class WordDescApp(App):
 
 def main():
     WordDescApp().run()
-    # pass
 
 
 if __name__ == '__main__':
-
-    # play_mp3(r)
     main()
 
 # DEBUGGING:
