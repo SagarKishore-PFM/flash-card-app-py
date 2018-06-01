@@ -8,21 +8,19 @@ Kivy screen that allows for adding new words as well as editting, deleting
 and viewing existing words in the selected Word Database.
 """
 
-from kivy.app import App
 from word import Word
 from kivy.uix.screenmanager import Screen
 from kivy.uix.button import Button
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
-from kivy.properties import BooleanProperty
+from kivy.properties import BooleanProperty, ObjectProperty
 from kivy.lang import Builder
+from kivy.uix.textinput import TextInput
 from functools import partial
+import re
 
 from oxfordapi import addword
 from compound_selection import SelectableLayout
-from testdatabase import generate_test_stack_database
-from testdatabase import generate_test_word_database
 from helperfuncs import word_description, short_meaning
 
 # TODO:
@@ -34,11 +32,18 @@ from helperfuncs import word_description, short_meaning
 #     >> Add audio button in description?
 #     >> Add audio in main screen WordRelativeLayouts
 
-WORD_DATABASE = generate_test_word_database()
-STACK_DATABASE = generate_test_stack_database()
-WORD_LIST = {word.name for word in WORD_DATABASE}
-WORD_SEARCH_DICT = {word.name: word for word in WORD_DATABASE}
-# WORD_DATABASE = STACK_DATABASE[0].words
+WORD_DATABASE = []
+STACK_DATABASE = []
+WORD_LIST = ''
+WORD_SEARCH_DICT = ''
+
+
+def db_init():
+    global WORD_DATABASE
+    global WORD_LIST
+    global WORD_SEARCH_DICT
+    WORD_LIST = {word.name for word in WORD_DATABASE}
+    WORD_SEARCH_DICT = {word.name: word for word in WORD_DATABASE}
 
 
 class WordRelativeLayout(SelectableLayout, RelativeLayout):
@@ -204,6 +209,7 @@ class AddWordButton(Button):
 """)
 
     def open_popup(self, selectable_grid_layout):
+
         popup = AddWordPopup()
         popup.ids.SaveChangesBtn.bind(on_release=partial(self.add_new_word,
                                                          popup,
@@ -215,8 +221,11 @@ class AddWordButton(Button):
         # print("adding new word -->", popup.ids.TextIP.text)
         # print("adding new word -->", popup.word_object)
         new_word_RL = WordRelativeLayout(popup.word_object)
+        selectable_grid_layout.clear_selection()
         selectable_grid_layout.add_widget(new_word_RL)
+        global WORD_DATABASE
         WORD_DATABASE.append(popup.word_object)
+        db_init()
         popup.dismiss()
 
 
@@ -315,6 +324,7 @@ class AddWordPopup(Popup):
 
     def check_input(self, text):
         # self.ids.WordDescription.text = ''
+        global WORD_LIST
         if text in WORD_LIST:
             self.error_disabled = False
             self.ids.ErrorMessage.text = 'Word Already Exists'
@@ -367,6 +377,9 @@ class DeleteWordButton(Button):
     def delete_word(self, popup, selectable_grid_layout, instance):
         selected_word = selectable_grid_layout.return_selected_stack_layout()
         selectable_grid_layout.remove_widget(selected_word)
+        global WORD_DATABASE
+        WORD_DATABASE.remove(selected_word.word_object)
+        db_init()
         popup.dismiss()
 
 
@@ -386,33 +399,39 @@ class DeleteWordPopup(Popup):
             font_size: 30
             size_hint: None, None
             size: self.texture_size
-            text: 'AAAAAAAAAAAAAAAAAAAR'
+            text: 'Are you sure you want to delete?'
             halign: 'center'
             valign: 'middle'
             pos_hint: {'center_x': 0.5, 'y':0.65}
 
         Button:
             id: DeleteBtn
-            text:"DONT"
+            text:"YES"
             size_hint: 0.3,0.2
             pos_hint: {'x':0.1, 'y':0.1}
             # disabled: True
 
         Button:
-            text:"NEIN"
+            text:"NEIN!"
             size_hint: 0.3,0.2
             pos_hint: {'x':0.6, 'y':0.1}
             on_release: root.dismiss()
 """)
 
 
-# class RootRelativeLayout(RelativeLayout):
+class WordRETextInput(TextInput):
 
-#     Builder.load_string("""
-# #:import SelectableGridLayout stacklistscreen.SelectableGridLayout
-# <RootRelativeLayout>:
-#     id: FL
-# """)
+    pat1 = re.compile('[^a-zA-Z0-9\s]')
+    # pat = re.compile('^\d+|[^a-zA-Z0-9\s]')
+    pat2 = re.compile('[^A-Za-z]')
+
+    def insert_text(self, substring, from_undo=False):
+        if(len(self.text) == 0):
+            pat = self.pat2
+        else:
+            pat = self.pat1
+        s = re.sub(pat, '', substring)
+        return super(WordRETextInput, self).insert_text(s, from_undo=from_undo)
 
 
 class WordListScreen(Screen):
@@ -426,7 +445,7 @@ class WordListScreen(Screen):
             pos: 0, 0
             size: self.size
 
-    RETextInput:
+    WordRETextInput:
         id: SearchBar
         pos_hint: {'center_x': 0.5, 'y': 0.8}
         size_hint: 0.7,0.1
@@ -452,37 +471,33 @@ class WordListScreen(Screen):
         on_release: self.open_popup(SelectableGL)
 
     Button:
-        id: DBListBtn
         on_release: root.manager.current = 'db screen'
-        pos_hint: {'x': 0.1, 'y': 0.8}
-        size_hint: 0.15,0.15
+        pos_hint: {'x': 0.03, 'y': 0.8}
+        size_hint: 0.1,0.1
         text: 'Go back to DB Selection'
 
     Button:
-        id: StackListBtn
         on_release: root.manager.current = 'stack screen'
-        pos_hint: {'x': 0.8, 'y': 0.8}
-        size_hint: 0.15,0.15
+        pos_hint: {'x': 0.85, 'y': 0.8}
+        size_hint: 0.1,0.1
         text: 'Go to Stack List Screen'
 
-    WordScreenSV:
+    ScrollView:
         id:SV
         height: root.height * 0.7
-
+        top: self.height
+        pos_hint: {'center_x': .5}
+        size_hint_x: 0.5
+        size_hint_y: None
+        canvas.before:
+            Color:
+                rgba: 1, 1, 0, 1.0
+            Rectangle:
+                pos: SV.pos
+                size: SV.size
         WordSelectableGridLayout:
             id: SelectableGL
 
-<WordScreenSV@ScrollView>:
-    top: self.height
-    pos_hint: {'center_x': .5}
-    size_hint_x: 0.5
-    size_hint_y: None
-    canvas.before:
-        Color:
-            rgba: 1, 1, 0, 1.0
-        Rectangle:
-            pos: root.pos
-            size: root.size
 
 <WordSelectableGridLayout@SelectableGridLayout>:
     canvas:
@@ -505,8 +520,20 @@ class WordListScreen(Screen):
     on_minimum_height: self.height = self.minimum_height
 """)
 
-    def on_enter(self,  *args, **kwargs):
+    # word_db = ObjectProperty(None)
+    fcdb = ObjectProperty(None)
+
+    def __init__(self, *args, **kwargs):
         super(WordListScreen, self).__init__(*args, **kwargs)
+
+    def on_enter(self,  *args, **kwargs):
+        global STACK_DATABASE
+        global WORD_DATABASE
+        STACK_DATABASE = self.fcdb.stack_db
+        WORD_DATABASE = self.fcdb.word_db
+        db_init()
+
+    # def on_pre_enter(self, *args, **kwargs):
 
     def load_word_widgets(self, search_result):
         for word_object in search_result:
@@ -516,26 +543,24 @@ class WordListScreen(Screen):
         WordRL = WordRelativeLayout(word_object)
         self.ids.SelectableGL.add_widget(WordRL)
 
-    def search_words(self, input):
+    def search_words(self, ip_text):
+        try:
+            self.ids.SelectableGL.clear_widgets()
+        except AttributeError:
+            pass
+        global WORD_SEARCH_DICT
         search_result = []
-        if(len(input) != 0):
+        if(len(ip_text) != 0):
             for key in WORD_SEARCH_DICT:
-                if(input in key[0:len(input)]):
+                if(ip_text in key[0:len(ip_text)]):
                     search_result.append(WORD_SEARCH_DICT[key])
                 else:
                     try:
                         self.ids.SelectableGL.clear_widgets()
                     except AttributeError:
                         pass
+            self.ids.SelectableGL.clear_selection()
             self.load_word_widgets(search_result)
-        else:
-            try:
-                self.ids.SelectableGL.clear_widgets()
-            except AttributeError:
-                pass
-
-
-
 
     # def __init__(self, *args, **kwargs):
     #     super(WordListScreen, self).__init__(*args, **kwargs)
@@ -543,15 +568,15 @@ class WordListScreen(Screen):
     #     self.add_widget(RootRelativeLayout(self.word_db))
 
 
-class WordListApp(App):
+# class WordListApp(App):
 
-    def build(self):
-        return WordListScreen()
-
-
-def main():
-    WordListApp().run()
+#     def build(self):
+#         return WordListScreen()
 
 
-if __name__ == '__main__':
-    main()
+# def main():
+#     WordListApp().run()
+
+
+# if __name__ == '__main__':
+#     main()
