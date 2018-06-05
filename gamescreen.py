@@ -48,21 +48,21 @@ class GameScreen(Screen):
     id: RootFL
 
     Button:
-        text: 'Save Changes'
-        pos_hint: {'x': 0.1, 'y': 0.8}
-        size_hint: 0.1,0.2
+        text: 'Go back to Stack List'
+        pos_hint: {'x': 0.025, 'y': 0.85}
+        size_hint: 0.15, 0.1
         on_release: root.save_changes()
 
     BoxLayout:
         orientation: 'vertical'
-        pos_hint: {'center_x': 0.5, 'y': 0.1}
-        size_hint: 0.5,0.3
-        padding: 10,10
+        pos_hint: {'center_x': 0.5, 'y': 0.025}
+        size_hint: 0.5, 0.3
+        padding: 10, 10
         spacing: 5
 
         canvas.before:
             Color:
-                rgba: 1, 1, 1, 0.0
+                rgba: 1, 1, 1, 0.1
             Rectangle:
                 pos: self.pos
                 size: self.size
@@ -87,7 +87,7 @@ class GameScreen(Screen):
 <GamePFL@ProgressFloatLayout>:
     canvas.before:
         Color:
-            rgba: 1, 0, 1, 0.0
+            rgba: 0.1, 0.4, 0.1, 0.3
         Rectangle:
             pos: self.pos
             size: self.size
@@ -100,7 +100,7 @@ class GameScreen(Screen):
     Label:
         id: Lbl
         pos_hint: {'center_x': 0.5, 'y': 0.15}
-        font_size: 18
+        font_size: 24
 """)
     game_stack = ObjectProperty(None)
 
@@ -239,14 +239,14 @@ class AnimatedLayout(BoxLayout):
             origin: self.center
     canvas.after:
         PopMatrix
-    pos_hint: {'center_x': 0.5, 'y': 0.65}
+    pos_hint: {'center_x': 0.5, 'y': 0.7}
     size_hint_x: 0.5
     size_hint_y: 0.3
 
 <FrontFace>:
     cols: 1
     rows: 1
-    size_hint: 1,1
+    size_hint: 1, 1
     canvas.before:
         Color:
             rgba: 1, 0.51, 0.4, 0.8
@@ -258,13 +258,14 @@ class AnimatedLayout(BoxLayout):
         Button:
             id: word_btn
             text: ''
-            size_hint: 1,1
+            size_hint: 1, 1
             pos: root.pos
+            font_size: 45
 
         Label:
             id: rank_label
             pos_hint: {'x': 0.35, 'y': 0.2}
-            font_size: 20
+            font_size: 28
 
 <BackFace>:
     rows: 3
@@ -285,15 +286,22 @@ class AnimatedLayout(BoxLayout):
                 size: FirstBox.size
         orientation: 'horizontal'
         id: FirstBox
-        size_hint: 1,0.3
+        size_hint: 1, 0.2
+
         Label:
             id: WordNameLabel
-            font_size: 30
+            font_size: 48
+
+        Label:
+            id: rank_label
+            pos_hint: {'x': 0.35, 'y': 0.2}
+            font_size: 28
+
         Button:
             text: 'Audio'
-            size_hint: 0.1,0.2
+            size_hint: 0.1, 0.2
             pos_hint: {'x': 0.6, 'y': 0.6}
-            on_release: root.parent.pronunciation()
+            on_release: root.parent.pronunciation(self)
 
     BoxLayout:
         canvas.before:
@@ -304,10 +312,11 @@ class AnimatedLayout(BoxLayout):
                 size: SecondBox.size
         orientation: 'horizontal'
         id: SecondBox
-        size_hint: 1,0.6
+        size_hint: 1, 0.7
+
         ScrollView:
             id: SV
-            height: root.height * 0.7
+            height: root.height * 0.9
             Label:
                 id: WordDescriptionLabel
                 text: 'word desc goes here'
@@ -323,7 +332,7 @@ class AnimatedLayout(BoxLayout):
     BoxLayout:
         orientation: 'horizontal'
         id: ThirdBox
-        size_hint: 1,0.2
+        size_hint: 1, 0.1
         Button:
             id: YesButton
             text:'Yes'
@@ -372,10 +381,13 @@ class AnimatedLayout(BoxLayout):
         self.pos_hint = {'center_x': 0.5, 'center_y': 0.65}
         self.clear_widgets()
 
-        bf = BackFace()
-        bf.ids.WordNameLabel.text = self.word.name
-        bf.ids.WordDescriptionLabel.text = word_description(self.word)
-        self.add_widget(bf)
+        back_face = BackFace()
+        back_face.ids.WordNameLabel.text = self.word.name
+        back_face.ids.WordDescriptionLabel.text = word_description(self.word)
+        label_text, label_color = rank_text(self.rank)
+        back_face.ids.rank_label.text = label_text
+        back_face.ids.rank_label.color = label_color
+        self.add_widget(back_face)
 
     def yes(self):
         if(self.rank < '0' or self.rank == '6'):
@@ -390,8 +402,10 @@ class AnimatedLayout(BoxLayout):
         self.slide_animation()
         print(self.parent.rank_dict)
 
-    def pronunciation(self):
-        play(self.word)
+    def pronunciation(self, instance):
+        ret = play(self.word)
+        if(ret < 0):
+            instance.disabled = True
 
 
 class FrontFace(BoxLayout):
