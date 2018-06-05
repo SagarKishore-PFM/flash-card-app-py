@@ -40,43 +40,13 @@ from stack import Stack
 
 # TODO:
 
-# >> Align everything properly in the main screen
-# >> Increase padding between the stack relative layouts
-# >> The relative layout must now show a progress bar that depicts number of
-#      words mastered
-# >> Add buttons to navigate to Word List screen and DataBaseScreen(?)
-# >> Add Delete Stack Popup
-# >> Add logic that saves the changes often and/or upon exiting the application
-# >> Rearrange and cleanup the .kv file
 # >> Cleanup the code
-
-# >> View Stack:
-#     Fix the positions of the widgets and make it pretty
-#     Maybe show the progress bars from the game screen(?) **
-#     Implementation of flash card via Practice Button in the popup
-
-# >> Edit Stack:
-#     Fix the positions of the widgets and make it pretty
-#     Input Validation with an error message using label **
-#     Make sure that the stack name is unique **
-
-# >> Create Stack:
-#     Fix the positions of the widgets and make it pretty
-#     Make sure that the stack name is unique **
-#     Input Validation with an error message using label **
-
-# >> Delete Stack:
-#     Everything
 
 # >> Edit Words Popup:
 #     See if you want to merge the thesaurus and the search list into one
 #     Give a list of old words?
+#     Fix the short description
 
-
-# STACK_DATABASE = generate_test_stack_database()
-# WORD_DATABASE = generate_test_word_database()
-# STACK_NAMES = [stack.name for stack in STACK_DATABASE]
-# WORD_SEARCH_DICT = {word.name: word for word in WORD_DATABASE}
 
 STACK_DATABASE = []
 WORD_DATABASE = []
@@ -142,23 +112,19 @@ class StackRelativeLayout(SelectableLayout, RelativeLayout):
 
     Label:
         id: StackNameLabel
-        pos: 100, 80
-        font_size: 30
-
-    Label:
-        id: StackSizeLabel
-        pos: 160, 40
-        font_size: 20
+        pos_hint: {'center_x': 0.5, 'y': 0.35}
+        font_size: 40
 
     Label:
         id: MasteredLabel
         pos_hint: {'center_x': 0.5, 'y': -0.1}
+        font_size: 22
 
     ProgressBar:
-        id: MasteredProgressBar
+        id: MasteredPB
         max: root.stack_object.size
-        pos_hint: {'center_x': 0.5, 'y': 0.25}
-        size_hint: 0.6, 0.05
+        pos_hint: {'center_x': 0.5, 'y': 0.2}
+        size_hint: 0.8, 0.1
 """)
 
     def __init__(self, stack_object, *args, **kwargs):
@@ -167,21 +133,24 @@ class StackRelativeLayout(SelectableLayout, RelativeLayout):
         self.redraw()
 
     def redraw(self, dt=0):
-        # self.stack_object = new_stack_object
         self.ids.StackNameLabel.text = self.stack_object.name
-        self.ids.StackSizeLabel.text = str(self.stack_object.size)
         self.ids.MasteredLabel.text = 'Mastered {0} / {1} words'.format(
             len(self.stack_object.rank_dict['6']), self.stack_object.size)
-        self.ids.MasteredProgressBar.value = len(self.stack_object.rank_dict['6'])
+        self.ids.MasteredPB.value = len(self.stack_object.rank_dict['6'])
 
 
 class WordListAdapter(ListAdapter):
 
-    word_object_list = ObjectProperty(None)
+    word_list = ObjectProperty(None)
 
 
-class ViewStackWordViewList(ListView):
+class ViewStackWordListView(ListView):
     pass
+
+
+class WordListItemButton(ListItemButton):
+
+    word_object = ObjectProperty(None)
 
 
 class WordGridLayout(SelectableLayout, GridLayout):
@@ -192,7 +161,7 @@ class ViewStackButton(Button):
 
     Builder.load_string("""
 <ViewStackButton>:
-    pos_hint: {'x': 0.1, 'y': 0.5}
+    pos_hint: {'x': 0.05, 'y': 0.5}
     size_hint: 0.15, 0.15
     """)
 
@@ -217,48 +186,43 @@ class ViewStackPopup(Popup):
 <ViewStackPopup>:
     id: VSP
     title: "Displaying Stack Information"
-    size_hint: 0.8,0.8
-    pos: 0,0
+    title_size: '22sp'
+    size_hint: 0.7, 0.7
+    pos: 0, 0
     separator_color: [1, 1, 1, 1]
 
     FloatLayout:
         pos: VSP.pos
 
         Label:
+            id: StackNameLbl
+            pos_hint: {'center_x': 0.2, 'y': 0.8}
             canvas.before:
                 Color:
-                    rgba: 1, 1, 1, 1.0
+                    rgba: 0.1, 0.1, 1, 0.0
                 Rectangle:
                     pos: self.pos
-                    size: self.texture_size
-            id: StackNameLbl
-            halign: 'right'
-            valign: 'middle'
-            pos_hint: {'x': -0.4,'y': 0.4}
-            text: "Stack Name"
+                    size: self.size
+            size_hint: None, None
             size: self.texture_size
-            color: 1,0,0,1
-            font_size: 30
-
-        Label:
-            id: StackSizeLbl
             halign: 'right'
             valign: 'middle'
-            pos_hint: {'x': -0.2,'y': 0.3}
+            text: "Stack Name"
+            color: 1, 0, 1, 1
+            font_size: 40
 
         Button:
             id: ExitBtn
-            pos_hint: {'x': 0.7, 'y': 0.1}
-            size_hint: 0.1, 0.1
-            text: "Exit"
+            pos_hint: {'x': 0.8, 'y': 0.75}
+            size_hint: 0.15, 0.15
+            text: "Go Back"
             on_release: root.dismiss()
 
         Button:
             id: PlayBtn
-            pos_hint: {'x': 0.7, 'y': 0.3}
-            size_hint: 0.1, 0.1
+            pos_hint: {'x': 0.55, 'y': 0.75}
+            size_hint: 0.15, 0.15
             text: "Practice"
-            # on_release: print(root.manager)
             disabled: root.button_disabled
 
         WordGridLayout:
@@ -269,28 +233,31 @@ class ViewStackPopup(Popup):
                     pos: self.pos
                     size: self.size
             id: GL
-            pos_hint: {'x':0.1,'y':0.1}
-            size_hint: 0.5,0.4
-            spacing: 10
-            padding: 10
+            pos_hint: {'x': 0.025, 'y': 0.1}
+            size_hint: 0.35, 0.5
+            padding: 10, 10
             cols: 1
-            ViewStackWordViewList:
-                pos_hint: {'x':0.3,'y':0.1}
-                size_hint: 0.2,0.4
-                id: WordViewList
+            ViewStackWordListView:
+                id: WordLV
+                canvas.before:
+                    Color:
+                        rgba: 1, 0, 0, 0.0
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
                 pos: GL.pos
                 size: GL.size
 
         BoxLayout:
             orientation: 'vertical'
-            pos_hint: {'center_x': 0.6, 'y': 0.6}
-            size_hint: 0.5,0.3
-            padding: 10,10
+            pos_hint: {'x': 0.5, 'center_y': 0.4}
+            size_hint: 0.5, 0.3
+            padding: 5, 5
             spacing: 5
 
             canvas.before:
                 Color:
-                    rgba: 1, 1, 1, 0.5
+                    rgba: 1, 1, 1, 0.0
                 Rectangle:
                     pos: self.pos
                     size: self.size
@@ -311,10 +278,11 @@ class ViewStackPopup(Popup):
                 id: ReviewingPFL
                 max_value: root.max_value
 
+
 <StackPFL@ProgressFloatLayout>:
     canvas.before:
         Color:
-            rgba: 1, 0, 1, 0.2
+            rgba: 1, 0.4, 1, 0.0
         Rectangle:
             pos: self.pos
             size: self.size
@@ -326,7 +294,7 @@ class ViewStackPopup(Popup):
 
     Label:
         id: Lbl
-        pos_hint: {'center_x': 0.5, 'y': 0.15}
+        pos_hint: {'center_x': 0.5, 'y': 0.2}
         font_size: 18
 """)
 
@@ -337,13 +305,12 @@ class ViewStackPopup(Popup):
         self.stack_object = stack_object
         super(ViewStackPopup, self).__init__(*args, **kwargs)
         self.ids.StackNameLbl.text = self.stack_object.name
-        self.ids.StackSizeLbl.text = str(self.stack_object.size)
 
         self.rank_dict = self.stack_object.rank_dict
         self.max_value = self.stack_object.size
 
-        self.word_list_view = self.ids.WordViewList
-        self.word_object_list = self.stack_object.words
+        self.word_list_view = self.ids.WordLV
+        self.word_list = self.stack_object.words
         self.generate_word_listview()
         self.update_progressbars()
         self.button_disabled = self.stack_object.size < 3
@@ -355,21 +322,22 @@ class ViewStackPopup(Popup):
     #     for word in self.stack_object.words:
     #         SGL.add_widget(WordRelativeLayout(word))
 
-    def args_converter(self, row_indext, rec):
+    def args_converter(self, row_index, rec):
         return {'text': rec.name,
+                'word_object': rec,
                 'size_hint_y': None,
-                'height': 45,
-                'font_size': 18}
+                'height': 35,
+                'font_size': 20, }
 
     def generate_word_listview(self):
-        list_adapter = WordListAdapter(data=self.word_object_list,
+        list_adapter = WordListAdapter(data=self.word_list,
                                        args_converter=self.args_converter,
                                        selection_mode="single",
                                        allow_empty_selection=False,
-                                       cls=ListItemButton,
-                                       word_object_list=self.word_object_list)
+                                       cls=WordListItemButton,
+                                       word_list=self.word_list)
         self.word_list_view.adapter = list_adapter
-        self.word_list_view.container.spacing = 8
+        self.word_list_view.container.spacing = 0.2
 
     def update_progressbars(self):
         reviewing_set = self.rank_dict['1'].union(self.rank_dict['2'],
@@ -415,61 +383,47 @@ class CreateStackButton(Button):
         SelectableGridLayout.add_widget(StackRelativeLayout(new_stack))
         popup.dismiss()
 
-# CreateStackPopup TODO:
-
-# Write logic to redraw or re-generate the word list view with the modified
-#     word_object_list
-# Write logic to bind on_press function of the save button to create a new
-#     stack object with the properties
-# Make the text input to have a validator for stack name so that it doesn't
-#     accept number in the first letter
-
 
 class CreateStackPopup(Popup):
     Builder.load_string("""
 <CreateStackPopup>:
     id: CreateStackPopup
     stack_name_lbl: StackNameLbl
-    stack_size_lbl: StackSizeLbl
     title: "Add a new Stack"
-    size_hint: 0.7,0.7
+    title_size: '22sp'
+    size_hint: 0.7, 0.7
     separator_color: [1, 1, 1, 1]
 
     FloatLayout:
         pos: CreateStackPopup.pos
         Label:
             id: StackNameLbl
-            halign: 'right'
+            halign: 'left'
             valign: 'middle'
-            pos_hint: {'x': -0.3,'y': 0.4}
+            size_hint: None, None
+            pos_hint: {'x': 0.1,'center_y': 0.9}
             text: "Stack Name"
-
-        Label:
-            id: StackSizeLbl
-            halign: 'right'
-            valign: 'middle'
-            pos_hint: {'x': -0.3,'y': -0.1}
-            # text: "Stack Size"
+            font_size: 30
 
         RETextInput:
             id: StackName
             multiline: False
-            pos_hint: {'x': 0.4,'y':0.85}
-            size_hint: 0.4,0.1
+            pos_hint: {'x': 0.25,'y':0.85}
+            size_hint: 0.45, 0.08
             hint_text: "Enter Stack Name...."
             on_text: root.validate_text_input()
             on_text_validate: root.open_edit_words_popup()
 
         Label:
             id: ErrorMessage
-            pos_hint: {'x': 0.3,'y': 0.8}
+            pos_hint: {'x': 0.25,'y': 0.77}
             canvas.before:
                 Color:
                     rgba: 0.4, 0.4, 0.4, 0.2
                 Rectangle:
                     pos: self.pos
                     size: self.size
-            text: ""
+            bold: True
             size_hint: None, None
             font_size: 24
             size: self.texture_size
@@ -479,19 +433,17 @@ class CreateStackPopup(Popup):
 
         Button:
             id: EditWordsBtn
-            pos_hint: {'x': 0.65, 'y': 0.1}
-            size_hint: 0.1, 0.1
-            text: "Add Word"
+            pos_hint: {'x': 0.6, 'y': 0.1}
+            size_hint: 0.15, 0.15
+            text: "Edit Words"
             on_release: root.open_edit_words_popup()
 
         Button:
             id: SaveChangesBtn
-            pos_hint: {'x': 0.85, 'y': 0.1}
-            size_hint: 0.1, 0.1
+            pos_hint: {'x': 0.825, 'y': 0.1}
+            size_hint: 0.15, 0.15
             text: "Save Changes"
-            # on_release: root.create_new_stack()
             disabled: root.button_disabled
-
 
         WordGridLayout:
             canvas.before:
@@ -501,49 +453,47 @@ class CreateStackPopup(Popup):
                     pos: self.pos
                     size: self.size
             id: GL
-            pos_hint: {'x':0.1,'y':0.1}
-            size_hint: 0.5,0.6
-            spacing: 10
-            padding: 10
-            cols: 2
+            pos_hint: {'x': 0.05, 'y': 0.1}
+            size_hint: 0.5, 0.6
+            padding: 10, 10
+            cols: 1
 
-            ViewStackWordViewList:
-                id: WordViewList
+            ViewStackWordListView:
+                id: WordLV
                 pos: GL.pos
                 size: GL.size
 """)
     stack_name_lbl = ObjectProperty(None)
-    stack_size_lbl = ObjectProperty(None)
     button_disabled = BooleanProperty(True)
 
     def __init__(self, *args, **kwargs):
         super(CreateStackPopup, self).__init__(*args, **kwargs)
-        self.word_list_view = self.ids.WordViewList
-        self.word_object_list = []
+        self.word_list_view = self.ids.WordLV
+        self.word_list = []
         self.list_adapter = None
         self.generate_word_listview()
 
-    def args_converter(self, row_indext, rec):
+    def args_converter(self, row_index, rec):
 
         return {'text': rec.name,
                 'size_hint_y': None,
-                'height': 45,
-                'font_size': 18}
+                'height': 35,
+                'font_size': 20}
 
     def generate_word_listview(self):
 
-        self.list_adapter = WordListAdapter(data=self.word_object_list,
+        self.list_adapter = WordListAdapter(data=self.word_list,
                                             args_converter=self.args_converter,
                                             selection_mode="single",
                                             allow_empty_selection=False,
                                             cls=ListItemButton,
-                                            word_object_list=self.word_object_list)
+                                            word_list=self.word_list)
         self.word_list_view.adapter = self.list_adapter
-        self.word_list_view.container.spacing = 8
+        self.word_list_view.container.spacing = 0.2
 
     def open_edit_words_popup(self):
 
-        popup = EditWordsPopup(self.word_object_list)
+        popup = EditWordsPopup(self.word_list)
         popup.ids.SaveChangesBtn.bind(on_release=partial(
                             self.update_changes_to_word_list,
                             popup))
@@ -552,10 +502,9 @@ class CreateStackPopup(Popup):
     def update_changes_to_word_list(self,
                                     popup,
                                     instance):
-        self.word_object_list = popup.selected_list_adapter.data
+        self.word_list = popup.selected_list_adapter.data
         popup.dismiss()
-        # self.generate_word_listview()
-        self.word_list_view.adapter.data = self.word_object_list
+        self.word_list_view.adapter.data = self.word_list
 
     def validate_text_input(self):
         min_len = 3
@@ -565,24 +514,10 @@ class CreateStackPopup(Popup):
         self.button_disabled = cond1 or cond2
         if(self.button_disabled):
             self.ids.ErrorMessage.text = \
-                f'Stack Name must be unique and contain more than {min_len} letters'
+                '* Stack Name must be unique and contain more than ' + \
+                f'{min_len} letters'
         else:
             self.ids.ErrorMessage.text = ""
-
-
-# EditWordsPopup TODO:
-
-# Create a space that shows definitions, sentences, etc for the selected word
-#     object(s). If multiple word objects then view meanings for all
-# Allow for multiple select
-# Write the logic to add selected words from search to the word_object_list of
-#     the previous screen
-# Upon pressing the save button return the modified word_object_list
-# Maybe have only two list views. Merge the thesaurus and search list view into
-    # one
-class WordListItemButton(ListItemButton):
-
-    word_object = ObjectProperty(None)
 
 
 class WordDescriptionLayout(SelectableView, FloatLayout):
@@ -610,8 +545,8 @@ class WordDescriptionLayout(SelectableView, FloatLayout):
 
     Label:
         id: WordNameLbl
-        pos_hint: {'x': 0.02, 'y': 0.3}
-        font_size: 24
+        pos_hint: {'x': 0.025, 'y': 0.3}
+        font_size: 28
         bold: True
         halign: 'left'
         valign: 'middle'
@@ -623,7 +558,7 @@ class WordDescriptionLayout(SelectableView, FloatLayout):
     Label:
 
         id: WordMeaningLbl
-        pos_hint: {'x': 0.05, 'y': -0.18}
+        pos_hint: {'x': 0.025, 'y': -0.1}
         markup: True
         size: WRL.size #[0] * 0.8, WRL.size[1] * 0.8
         texture_size: self.size
@@ -631,6 +566,8 @@ class WordDescriptionLayout(SelectableView, FloatLayout):
         halign: 'left'
         valign: 'middle'
         text: short_meaning(root.word_object)
+        shorten: True
+        shorten_from: 'right'
 """)
     word_object = ObjectProperty(None)
 
@@ -644,37 +581,38 @@ class EditWordsPopup(Popup):
     Builder.load_string("""
 #:import short_meaning helperfuncs.short_meaning
 <EditWordsPopup>:
-    id: CreateStackPopup
     title: "Edit Words"
-    size_hint: 0.7,0.7
+    size_hint: 0.7, 0.7
+    title_size: '22sp'
     separator_color: [1, 1, 1, 1]
     FloatLayout:
         id: RootFL
         RETextInput:
             id: SearchBar
-            pos_hint: {'center_x':0.4,'y':0.85}
-            size_hint: 0.7,0.1
+            pos_hint: {'center_x': 0.4, 'center_y': 0.9}
+            size_hint: 0.7, 0.075
             on_text: root.search_words(self.text)
             multiline: False
+            hint_text: "Search words..."
 
         Button:
             id: SaveChangesBtn
             text: "Save changes"
-            pos_hint: {'x':0.8,'y':0.85}
-            size_hint: 0.2,0.1
+            pos_hint: {'center_x': 0.8825, 'y': 0.85}
+            size_hint: 0.2, 0.1
 
         Button:
             id: AddWordsBtn
             text: "Add Selected Words"
-            pos_hint: {'x':0.03,'y':0.7}
-            size_hint: 0.17,0.1
+            pos_hint: {'x': 0.03,'y': 0.7}
+            size_hint: 0.17, 0.1
             on_release: root.populate_selected_list()
 
         Button:
             id: RemoveWordsBtn
             text: "Remove Selected Words"
-            pos_hint: {'x':0.7,'y':0.7}
-            size_hint: 0.17,0.1
+            pos_hint: {'x': 0.8,'y': 0.7}
+            size_hint: 0.17, 0.1
             on_release: root.remove_selected_list()
 
 
@@ -686,14 +624,14 @@ class EditWordsPopup(Popup):
                     pos: self.pos
                     size: self.size
             id: SearchWordGL
-            pos_hint: {'x':0.03,'y':0.05}
-            size_hint: 0.17,0.6
+            pos_hint: {'x': 0.03,'y': 0.05}
+            size_hint: 0.17, 0.6
             spacing: 10
             padding: 10
             cols: 1
 
-            ViewStackWordViewList:
-                id: SearchWordViewList
+            ViewStackWordListView:
+                id: SearchWordLV
                 pos: SearchWordGL.pos
                 size: SearchWordGL.size
 
@@ -705,28 +643,34 @@ class EditWordsPopup(Popup):
                     pos: self.pos
                     size: self.size
             id: SelectedWordGL
-            pos_hint: {'x':0.7,'y':0.05}
-            size_hint: 0.17,0.6
+            pos_hint: {'x': 0.8,'y': 0.05}
+            size_hint: 0.17, 0.6
             spacing: 10
             padding: 10
             cols: 1
-            ViewStackWordViewList:
-                id: SelectedWordViewList
+            ViewStackWordListView:
+                id: SelectedWordLV
                 pos: SelectedWordGL.pos
                 size: SelectedWordGL.size
         ScrollView:
             id:SV
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 0.15
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
             height: RootFL.height * 0.6
             top: self.height
             pos_hint: {'x': 0.25, 'y': 0.05}
-            size_hint: 0.4, None
+            size_hint: 0.5, None
             ThesaurusWordGridLayout:
                 id: ThesaurusWordGL
 
 <ThesaurusWordGridLayout@SelectableGridLayout>:
     canvas.before:
         Color:
-            rgba: 1, 1, 1, 0.2
+            rgba: 1, 1, 1, 0.0
         Rectangle:
             pos: self.pos
             size: self.size
@@ -744,9 +688,9 @@ class EditWordsPopup(Popup):
 
     def __init__(self, stack_words, *args, **kwargs):
         super(EditWordsPopup, self).__init__(*args, **kwargs)
-        self.word_object_list = stack_words
-        self.selected_word_list_view = self.ids.SelectedWordViewList
-        self.search_word_list_view = self.ids.SearchWordViewList
+        self.word_list = stack_words
+        self.selected_word_list_view = self.ids.SelectedWordLV
+        self.search_word_list_view = self.ids.SearchWordLV
         # self.thesaurus_word_list_view = self.ids.ThesaurusWordListView
         self.search_list_adapter = None
         self.selected_list_adapter = None
@@ -758,30 +702,34 @@ class EditWordsPopup(Popup):
     def args_converter(self, row_index, rec):
 
         return {'text': rec.name,
+                'font_size': 20,
                 'size_hint_y': None,
                 'height': 45,
                 'word_object': rec}
 
     def generate_selected_word_listview(self):
 
-        self.selected_list_adapter = WordListAdapter(data=self.word_object_list,
-                                                     args_converter=self.args_converter,
-                                                     selection_mode='single',
-                                                     allow_empty_selection=True,
-                                                     cls=WordListItemButton,
-                                                     word_object_list=self.word_object_list)
+        self.selected_list_adapter = WordListAdapter(
+                                        data=self.word_list,
+                                        args_converter=self.args_converter,
+                                        selection_mode='single',
+                                        allow_empty_selection=True,
+                                        cls=WordListItemButton,
+                                        word_list=self.word_list)
         self.selected_word_list_view.adapter = self.selected_list_adapter
 
     def generate_search_word_listview(self,
                                       search_word_list):
 
-        self.search_list_adapter = WordListAdapter(data=search_word_list,
-                                                   args_converter=self.args_converter,
-                                                   selection_mode='multiple',
-                                                   allow_empty_selection=True,
-                                                   cls=WordListItemButton)
+        self.search_list_adapter = WordListAdapter(
+                                    data=search_word_list,
+                                    args_converter=self.args_converter,
+                                    selection_mode='multiple',
+                                    allow_empty_selection=True,
+                                    cls=WordListItemButton)
         self.search_word_list_view.adapter = self.search_list_adapter
-        self.search_word_list_view.adapter.bind(on_selection_change=self.generate_thesaurus_listview)
+        self.search_word_list_view.adapter.bind(
+                        on_selection_change=self.generate_thesaurus_listview)
 
     def generate_thesaurus_listview(self,
                                     word_list_adapter, *args):
@@ -818,10 +766,10 @@ class EditWordsPopup(Popup):
 
     def populate_selected_list(self):
         for button in self.search_list_adapter.selection:
-            if(button.word_object not in self.word_object_list):
-                self.word_object_list.append(button.word_object)
+            if(button.word_object not in self.word_list):
+                self.word_list.append(button.word_object)
 
-        self.selected_list_adapter.data = self.word_object_list
+        self.selected_list_adapter.data = self.word_list
         self.selected_word_list_view.container.parent.scroll_y = 0
 
     def remove_selected_list(self):
@@ -829,7 +777,7 @@ class EditWordsPopup(Popup):
         for button in self.selected_list_adapter.selection:
             selected_words.append(button.word_object)
         for word in selected_words:
-            self.word_object_list.remove(word)
+            self.word_list.remove(word)
         self.generate_selected_word_listview()
 
 
@@ -843,11 +791,13 @@ class EditStackButton(Button):
     def open_popup(self, selected_stack_relative_layout):
         selected_stack_object = selected_stack_relative_layout.stack_object
         popup = EditStackPopup(selected_stack_object)
-        popup.ids.SaveChangesBtn.bind(
-            on_release=partial(self.update_changes_to_stack,
-                               popup,))
+        popup.ids.SaveChangesBtn.bind(on_release=partial(
+                                                self.update_changes_to_stack,
+                                                popup,))
+
         popup.bind(on_dismiss=partial(self.redraw_callback,
                                       selected_stack_relative_layout))
+
         popup.open()
 
     def update_changes_to_stack(self,
@@ -866,12 +816,11 @@ class EditStackPopup(Popup):
 <EditStackPopup>:
     id: EditStackPopup
     stack_name_lbl: StackNameLbl
-    stack_size_lbl: StackSizeLbl
     stack_name_txt: StackName
     title: "Edit Stack Information"
-    size_hint: 0.7,0.7
+    size_hint: 0.7, 0.7
+    title_size: '22sp'
     separator_color: [1, 1, 1, 1]
-
 
     FloatLayout:
         id: FL
@@ -880,21 +829,16 @@ class EditStackPopup(Popup):
             id: StackNameLbl
             halign: 'right'
             valign: 'middle'
-            pos_hint: {'x': -0.3,'y': 0.4}
+            size_hint: None, None
+            pos_hint: {'x': 0.1,'center_y': 0.9}
             text: "Stack Name"
-
-        Label:
-            id: StackSizeLbl
-            halign: 'right'
-            valign: 'middle'
-            pos_hint: {'x': -0.3,'y': -0.1}
-            # text: "Stack Size"
+            font_size: 30
 
         RETextInput:
             id: StackName
             multiline: False
-            pos_hint: {'x': 0.4,'y':0.85}
-            size_hint: 0.4,0.1
+            pos_hint: {'x': 0.25,'y':0.85}
+            size_hint: 0.45, 0.08
             hint_text: "Enter Stack Name...."
             text: root.stack_object.name
             on_text: root.validate_text_input()
@@ -911,13 +855,14 @@ class EditStackPopup(Popup):
 Changing the Words in the Stack will reset the progress"
             halign: 'center'
             valign: 'middle'
-            size_hint: 0.15,0.15
+            size_hint: 0.25, 0.25
             text_size: self.size
-            pos_hint: {'x': 0.8,'y': 0.6}
+            pos_hint: {'x': 0.65,'y': 0.5}
+            font_size: 18
 
         Label:
             id: ErrorMessage
-            pos_hint: {'x': 0.3,'y': 0.8}
+            pos_hint: {'x': 0.25,'y': 0.77}
             canvas.before:
                 Color:
                     rgba: 0.4, 0.4, 0.4, 0.2
@@ -934,15 +879,15 @@ Changing the Words in the Stack will reset the progress"
 
         Button:
             id: EditWordsBtn
-            pos_hint: {'x': 0.65, 'y': 0.1}
-            size_hint: 0.1, 0.1
-            text: "Edit Word"
+            pos_hint: {'x': 0.60, 'y': 0.1}
+            size_hint: 0.15, 0.15
+            text: "Edit Words"
             on_release: root.open_edit_words_popup()
 
         Button:
             id: SaveChangesBtn
-            pos_hint: {'x': 0.85, 'y': 0.1}
-            size_hint: 0.1, 0.1
+            pos_hint: {'x': 0.825, 'y': 0.1}
+            size_hint: 0.15, 0.15
             text: "Save Changes"
             # on_release: root.create_new_stack()
             disabled: root.button_disabled
@@ -955,31 +900,26 @@ Changing the Words in the Stack will reset the progress"
                     pos: self.pos
                     size: self.size
             id: GL
-            pos_hint: {'x':0.1,'y':0.1}
-            size_hint: 0.5,0.6
-            spacing: 10
-            padding: 10
-            cols: 2
+            pos_hint: {'x': 0.05, 'y': 0.1}
+            size_hint: 0.5, 0.6
+            padding: 10, 10
+            cols: 1
 
-            ViewStackWordViewList:
-                id: WordViewList
+            ViewStackWordListView:
+                id: WordLV
                 pos: GL.pos
                 size: GL.size
 """)
+
     stack_name_lbl = ObjectProperty(None)
-    stack_size_lbl = ObjectProperty(None)
     button_disabled = BooleanProperty(True)
     stack_name_txt = ObjectProperty(None)
-    # save_changes_btn = ObjectProperty(None)
-    # object_info_lbl = ObjectProperty(None)
 
     def __init__(self, stack_object, *args, **kwargs):
         self.stack_object = stack_object
         super(EditStackPopup, self).__init__(*args, **kwargs)
         self.ids.StackNameLbl.text = self.stack_object.name
-        self.ids.StackSizeLbl.text = str(self.stack_object.size)
-        self.word_list_view = self.ids.WordViewList
-        # self.word_object_list = stack_object.words
+        self.word_list_view = self.ids.WordLV
         self.generate_word_listview()
         self.list_adapter = WordListAdapter
         self.validate_text_input()
@@ -988,12 +928,12 @@ Changing the Words in the Stack will reset the progress"
         self.stack_object.name = self.stack_name_txt.text
         db_init()
 
-    def args_converter(self, row_indext, rec):
+    def args_converter(self, row_index, rec):
 
         return {'text': rec.name,
                 'size_hint_y': None,
-                'height': 30,
-                'font_size': 18}
+                'height': 35,
+                'font_size': 20}
 
     def generate_word_listview(self):
 
@@ -1002,8 +942,9 @@ Changing the Words in the Stack will reset the progress"
                                             selection_mode="single",
                                             allow_empty_selection=False,
                                             cls=ListItemButton,
-                                            word_object_list=self.stack_object.words)
+                                            word_list=self.stack_object.words)
         self.word_list_view.adapter = self.list_adapter
+        self.word_list_view.container.spacing = 0.2
 
     def open_edit_words_popup(self):
 
@@ -1029,7 +970,8 @@ Changing the Words in the Stack will reset the progress"
         self.button_disabled = cond1 or cond2
         if(self.button_disabled):
             self.ids.ErrorMessage.text = \
-                f'Stack Name must be unique and contain more than {min_len} letters'
+                'Stack Name must be unique and contain more than ' + \
+                f'{min_len} letters'
         else:
             self.ids.ErrorMessage.text = ""
 
@@ -1064,32 +1006,32 @@ class DeleteStackPopup(Popup):
     Builder.load_string("""
 <DeleteStackPopup>:
     title: ""
-    size_hint: 0.4,0.3
+    size_hint: 0.4, 0.3
     separator_color: [1, 1, 1, 1]
 
     FloatLayout:
         id: FL
 
         Label:
-            font_size: 30
+            font_size: 34
             size_hint: None, None
             size: self.texture_size
             text: 'Are you sure you want to delete?'
             halign: 'center'
             valign: 'middle'
-            pos_hint: {'center_x': 0.5, 'y':0.65}
+            pos_hint: {'center_x': 0.5, 'y':0.75}
 
         Button:
             id: DeleteBtn
             text:"YES"
-            size_hint: 0.3,0.2
-            pos_hint: {'x':0.1, 'y':0.1}
+            size_hint: 0.4, 0.35
+            pos_hint: {'x': 0.05, 'y': 0.1}
             # disabled: True
 
         Button:
             text:"NEIN!"
-            size_hint: 0.3,0.2
-            pos_hint: {'x':0.6, 'y':0.1}
+            size_hint: 0.4, 0.35
+            pos_hint: {'x': 0.55, 'y': 0.1}
             on_release: root.dismiss()
 """)
 
@@ -1125,23 +1067,33 @@ class StackListScreen(Screen):
 
         ViewStackButton:
             id: ViewStackBtn
-            on_release: self.open_popup(StackSGL.return_selected_stack_layout())
+            pos_hint: {'x': 0.05, 'y': 0.5}
+            size_hint: 0.15, 0.15
+            on_release: self.open_popup(\
+                StackSGL.return_selected_stack_layout())
             disabled: StackSGL.button_disabled
             text: "Practice Selected Stack"
 
         EditStackButton:
             id: EditStackBtn
-            on_release: self.open_popup(StackSGL.return_selected_stack_layout())
+            pos_hint: {'x': 0.8, 'y': 0.5}
+            size_hint: 0.15, 0.15
+            on_release: self.open_popup(\
+                StackSGL.return_selected_stack_layout())
             disabled: StackSGL.button_disabled
             text: "Edit Selected Stack"
 
         CreateStackButton:
             id: CreateStackBtn
+            pos_hint: {'x': 0.05, 'y': 0.15}
+            size_hint: 0.15, 0.15
             on_release: self.open_popup(root.ids.StackSGL)
             text: "Create a new Stack"
 
         DeleteStackButton:
             id: DeleteStackBtn
+            pos_hint: {'x': 0.8, 'y': 0.15}
+            size_hint: 0.15, 0.15
             text: 'Delete Stack'
             disabled: StackSGL.button_disabled
             on_release: self.open_popup(StackSGL)
@@ -1158,25 +1110,33 @@ class StackListScreen(Screen):
 
         ScrollView:
             id:SV
-            height: root.height * 0.7
+            canvas.before:
+                Color:
+                    rgba: 0.5, 0.1, 0.1, 1.0
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            height: root.height * 0.8
             top: self.height
             pos_hint: {'center_x': .5}
             size_hint_x: 0.5
             size_hint_y: None
             top: self.height
+            bar_color: 0.1, 0.5, 1, 1
+            bar_width: 5
 
             StackSelectableGridLayout:
                 id: StackSGL
                 cols: 2
 
 <WordListButton@Button>:
-    pos_hint: {'x': 0.8, 'y': 0.8}
-    size_hint: 0.15,0.15
+    pos_hint: {'x': 0.825, 'y': 0.85}
+    size_hint: 0.15, 0.1
 
 
 <DBListButton@Button>:
-    pos_hint: {'x': 0.1, 'y': 0.8}
-    size_hint: 0.15,0.15
+    pos_hint: {'x': 0.025, 'y': 0.85}
+    size_hint: 0.15, 0.1
 
 
 <StackSelectableGridLayout@SelectableGridLayout>:
