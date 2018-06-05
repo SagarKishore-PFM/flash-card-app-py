@@ -32,6 +32,8 @@ def save_db(database_list):
 
 
 def play(word):
+    if(word.audio == ''):
+        return -1
     file_name = word.audio.split('/')[-1]
     temp_dir = os.getcwd() + '\\temp\\'
     fpath = temp_dir + file_name
@@ -42,6 +44,7 @@ def play(word):
     sound = SoundLoader.load(fpath)
     sound.play()
     sound.bind(on_stop=unload_sound)
+    return 1
 
 
 def unload_sound(instance):
@@ -49,7 +52,6 @@ def unload_sound(instance):
 
 
 def delete_temp():
-        # print(file, sound, dt)
         cwd = os.getcwd()
         temp_dir = cwd + '\\temp\\'
         dir_, subdirs_, files_ = next(os.walk(temp_dir))
@@ -72,9 +74,10 @@ def word_description(word):
     """
         examples_core = ""
         for j, ex in enumerate(word.definitions[x]['examples']):
-            examples_core = examples_core + f"({azlower[j]})"\
+            examples_core = examples_core + f"({azlower[j]})  "\
                 + ex + '\n' + '            '
         examples_string = f"""[size=20][b]Examples: [/b][/size]
+
             [size=18][i]{examples_core}[/size][/i]
     """
         defex_string = defex_string + definition_string + examples_string
@@ -84,14 +87,16 @@ def word_description(word):
     for i, x in enumerate(word.synant):
         # try:
         syns = ', '.join(word.synant[x]['synonyms'])
-        syn_string = f""" [size=26][b]({'i'*(i+1)}) {x}:[/b][/size]
+        syn_string = f"""[size=26][b]({'i'*(i+1)}) {x}:[/b][/size]
 
         [b][size=20]Synonyms:[/b][/size]  [i][size=22]{syns}[/size][/i]
 
     """
         ants = ', '.join(word.synant[x]['antonyms'])
         ant_string = f"""\
-    [size=20][b]Antonyms: [i][size=22]{ants}[/size][/i][/b][/size]"""
+    [size=20][b]Antonyms: [/b][i][size=22]{ants}[/size][/i][/size]
+
+    """
         synant_string = synant_string + syn_string + ant_string
 
     main_string = header_string + defex_string + synant_string
