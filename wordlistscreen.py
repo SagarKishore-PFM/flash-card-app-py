@@ -16,21 +16,18 @@ from kivy.uix.popup import Popup
 from kivy.properties import BooleanProperty, ObjectProperty
 from kivy.lang import Builder
 from kivy.uix.textinput import TextInput
+
 from functools import partial
 import re
 
 from oxfordapi import addword
 from compound_selection import SelectableLayout
-from helperfuncs import word_description, short_meaning
+from helperfuncs import word_description, short_meaning, play
 
 # TODO:
 
-#     >> Database is not affected at the moment.
-#     >> Minor clean up in the popup UIs
-#     >> Add navigation to the StackList Screen and DataBaseScreen(?)
-#     >> Cleanup the kv file
-#     >> Add audio button in description?
-#     >> Add audio in main screen WordRelativeLayouts
+#     >> Use shorten in Label or make the WordRL bigger?
+#     >> Fix the short description in WordRL
 
 WORD_DATABASE = []
 STACK_DATABASE = []
@@ -64,9 +61,9 @@ class WordRelativeLayout(SelectableLayout, RelativeLayout):
         id: WordBtn
         canvas.before:
             Color:
-                rgba: .3, .3, .3, 1
+                rgba: .3, .3, .3, 0
             Rectangle:
-                pos: 0, 0
+                pos: self.pos
                 size: self.size
 
     Label:
@@ -85,12 +82,25 @@ class WordRelativeLayout(SelectableLayout, RelativeLayout):
         id: WordMeaningLbl
         pos_hint: {'x': 0.08, 'y': -0.18}
         markup: True
-        size: WRL.size #[0] * 0.8, WRL.size[1] * 0.8
+        size: WRL.size # [0] * 0.8, WRL.size[1] * 0.8
         texture_size: self.size
-        # height: self.texture_size[1]
         text_size: self.width, None
         halign: 'left'
         valign: 'middle'
+
+    Button:
+        id: AudioBtn
+        canvas.before:
+            Color:
+                rgba: .8, .2, .5, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        pos_hint: {'x': 0.2, 'y': 0.7}
+        size_hint: 0.05, 0.28
+        text: 'audio'
+        font_size: 15
+        on_release: root.play_audio(self)
 """)
 
     def __init__(self, word_object, *args, **kwargs):
@@ -101,6 +111,12 @@ class WordRelativeLayout(SelectableLayout, RelativeLayout):
     def draw(self):
         self.ids.WordNameLbl.text = self.word_object.name
         self.ids.WordMeaningLbl.text = short_meaning(self.word_object)
+
+    def play_audio(self, instance):
+        ret = play(self.word_object)
+        if(ret < 0):
+            instance.disabled = True
+            instance.text = 'N/A'
 
 
 class ViewWordButton(Button):
@@ -123,28 +139,29 @@ class ViewWordPopup(Popup):
 <ViewWordPopup>:
     id: ViewWordPopup
     title: "Word Description"
-    size_hint: 0.7,0.7
+    title_size: '22sp'
+    size_hint: 0.7, 0.7
     separator_color: [1, 1, 1, 1]
 
     FloatLayout:
         id: FL
         canvas.before:
             Color:
-                rgba: 1, 0, 0, 0.0
+                rgba: 0.1, 0.4, 0.4, 0.35
             Rectangle:
-                pos: 0, 0
+                pos: self.pos
                 size: self.size
-        ScrollView:
-            top: FL.height* 1.2
-            width: FL.width
-            pos: FL.pos[0],FL.pos[1]
-            # height: FL.height
-            size_hint_y: None
-            height: FL.height * 0.8
 
+        ScrollView:
+            id: SV
+            pos: FL.pos # [0], FL.pos[1]
+            size_hint_y: None
+            height: FL.height * 0.98
+            bar_color: 0.1, 0.5, 1, 1
+            bar_width: 5
             canvas.before:
                 Color:
-                    rgba: 1, 1, 0, 1.0
+                    rgba: 1, 1, 0, 0.0
                 Rectangle:
                     pos: self.pos
                     size: self.size
@@ -153,23 +170,22 @@ class ViewWordPopup(Popup):
                 id: WordDescription
                 canvas.before:
                     Color:
-                        rgba: 0.1, 0.4, 0.4, 0.4
+                        rgba: 0.1, 0.4, 0.4, 0.35
                     Rectangle:
                         pos: self.pos
                         size: self.size
-                pos_hint_x: 0.1
-                height: self.texture_size[1]
                 size_hint_y: None
-                size: FL.size[0] * 0.85, FL.size[1] * 0.85
+                top: FL.top
+                height: self.texture_size[1]
                 text_size: self.width, None
                 halign: 'left'
                 valign: 'middle'
                 markup: True
-                # disabled: True
-                padding: 100, 100
+                padding: 50, 50
+
         Button:
             id: ExitBtn
-            pos_hint: {'x':0.7, 'y': 0.05}
+            pos_hint: {'x': 0.75, 'y': 0.03}
             size_hint: 0.2, 0.1
             text: "Go Back"
             on_release: root.dismiss()
@@ -236,7 +252,8 @@ class AddWordPopup(Popup):
 <AddWordPopup>:
     id: AddWordPopup
     title: "Add a new Word"
-    size_hint: 0.7,0.7
+    title_size: '22sp'
+    size_hint: 0.7, 0.7
     separator_color: [1, 1, 1, 1]
 
     FloatLayout:
@@ -245,13 +262,13 @@ class AddWordPopup(Popup):
             Color:
                 rgba: 1, 0, 0, 0.0
             Rectangle:
-                pos: 0, 0
+                pos: self.pos
                 size: self.size
 
         RETextInput:
             id: TextIP
-            size_hint: 0.85, 0.1
-            pos_hint: {'center_x': 0.5, 'y':0.85}
+            size_hint: 0.85, 0.075
+            pos_hint: {'center_x': 0.5, 'y':0.9}
             hint_text: "Enter the word here..."
             multiline: False
             on_text_validate: root.call_api(self.text)
@@ -275,16 +292,14 @@ class AddWordPopup(Popup):
             disabled: AddWordPopup.error_disabled
 
         ScrollView:
-            top: FL.height
-            width: FL.width
-            pos: FL.pos[0],FL.pos[1]*0.7
-            # pos_hint: {'x':0, 'y': 0.8}
+            pos: FL.pos
             size_hint_y: None
-            height: FL.height * 0.6
-
+            height: FL.height * 0.85
+            bar_color: 0.1, 0.5, 1, 1
+            bar_width: 5
             canvas.before:
                 Color:
-                    rgba: 1, 1, 0, 1.0
+                    rgba: 1, 1, 0, 0.1
                 Rectangle:
                     pos: self.pos
                     size: self.size
@@ -296,20 +311,19 @@ class AddWordPopup(Popup):
                     Rectangle:
                         pos: self.pos
                         size: self.size
-                pos_hint_x: 0.1
-                height: self.texture_size[1]
                 size_hint_y: None
-                size: FL.size[0] * 0.85, FL.size[1] * 0.85
+                top: FL.top
+                height: self.texture_size[1]
                 text_size: self.width, None
                 halign: 'left'
                 valign: 'middle'
-                disabled: AddWordPopup.button_disabled
                 markup: True
-                padding: 100, 100
+                padding: 50, 50
+                disabled: AddWordPopup.button_disabled
 
         Button:
             id: SaveChangesBtn
-            pos_hint: {'x':0.7, 'y': 0.1}
+            pos_hint: {'x': 0.75, 'y': 0.03}
             size_hint: 0.2, 0.1
             text: "Add Word"
             disabled: root.button_disabled
@@ -323,7 +337,6 @@ class AddWordPopup(Popup):
         super(AddWordPopup, self).__init__(*args, **kwargs)
 
     def check_input(self, text):
-        # self.ids.WordDescription.text = ''
         global WORD_LIST
         if text in WORD_LIST:
             self.error_disabled = False
@@ -340,7 +353,6 @@ class AddWordPopup(Popup):
             return
 
         word_object, status1, status2 = addword(Word(text))
-        # print("trying to add word --> ", text)
         try:
             if(status1[2]):
                 self.ids.ErrorMessage.text = f"""\
@@ -389,32 +401,32 @@ class DeleteWordPopup(Popup):
 <DeleteWordPopup>:
     id: DeleteWordPopup
     title: ""
-    size_hint: 0.4,0.3
+    size_hint: 0.4, 0.3
     separator_color: [1, 1, 1, 1]
 
     FloatLayout:
         id: FL
 
         Label:
-            font_size: 30
+            font_size: 34
             size_hint: None, None
             size: self.texture_size
             text: 'Are you sure you want to delete?'
             halign: 'center'
             valign: 'middle'
-            pos_hint: {'center_x': 0.5, 'y':0.65}
+            pos_hint: {'center_x': 0.5, 'y':0.75}
 
         Button:
             id: DeleteBtn
             text:"YES"
-            size_hint: 0.3,0.2
-            pos_hint: {'x':0.1, 'y':0.1}
+            size_hint: 0.4, 0.35
+            pos_hint: {'x': 0.05, 'y': 0.1}
             # disabled: True
 
         Button:
             text:"NEIN!"
-            size_hint: 0.3,0.2
-            pos_hint: {'x':0.6, 'y':0.1}
+            size_hint: 0.3, 0.35
+            pos_hint: {'x': 0.55, 'y': 0.1}
             on_release: root.dismiss()
 """)
 
@@ -442,53 +454,61 @@ class WordListScreen(Screen):
         Color:
             rgba: 1, 0, 0, 0.0
         Rectangle:
-            pos: 0, 0
+            pos: self.pos
             size: self.size
 
     WordRETextInput:
         id: SearchBar
-        pos_hint: {'center_x': 0.5, 'y': 0.8}
-        size_hint: 0.7,0.1
+        pos_hint: {'center_x': 0.5, 'y': 0.865}
+        size_hint: 0.6, 0.065
         hint_text: "Search words..."
         on_text: root.search_words(self.text)
 
     ViewWordButton:
         id: ViewWordBtn
         text: 'View Word'
+        pos_hint: {'x': 0.05, 'y': 0.5}
+        size_hint: 0.15, 0.15
         disabled: SelectableGL.button_disabled
         on_release: self.open_popup(\
             SelectableGL.return_selected_stack_layout())
 
     AddWordButton:
         id: AddWordButton
+        pos_hint: {'x': 0.05, 'y': 0.15}
+        size_hint: 0.15, 0.15
         text: 'Add a new Word'
         on_release: self.open_popup(SelectableGL)
 
     DeleteWordButton:
         id: DeleteWordBtn
+        pos_hint: {'x': 0.8, 'y': 0.5}
+        size_hint: 0.15, 0.15
         text: 'Delete Word'
         disabled: SelectableGL.button_disabled
         on_release: self.open_popup(SelectableGL)
 
     Button:
         on_release: root.manager.current = 'db screen'
-        pos_hint: {'x': 0.03, 'y': 0.8}
-        size_hint: 0.1,0.1
+        pos_hint: {'x': 0.025, 'y': 0.85}
+        size_hint: 0.15, 0.1
         text: 'Go back to DB Selection'
 
     Button:
         on_release: root.manager.current = 'stack screen'
-        pos_hint: {'x': 0.85, 'y': 0.8}
-        size_hint: 0.1,0.1
+        pos_hint: {'x': 0.825, 'y': 0.85}
+        size_hint: 0.15, 0.1
         text: 'Go to Stack List Screen'
 
     ScrollView:
         id:SV
-        height: root.height * 0.7
+        height: root.height * 0.8
         top: self.height
         pos_hint: {'center_x': .5}
         size_hint_x: 0.5
         size_hint_y: None
+        bar_color: 0.1, 0.5, 1, 1
+        bar_width: 5
         canvas.before:
             Color:
                 rgba: 1, 1, 0, 1.0
@@ -512,7 +532,7 @@ class WordListScreen(Screen):
     cols: 1
     padding: 10, 10
     spacing: 10, 10
-    row_default_height: 100
+    row_default_height: 120
     col_force_default: False
     col_default_width: 200
     pos_hint: {'center_x': 0.5}
@@ -526,7 +546,7 @@ class WordListScreen(Screen):
     def __init__(self, *args, **kwargs):
         super(WordListScreen, self).__init__(*args, **kwargs)
 
-    def on_enter(self,  *args, **kwargs):
+    def on_enter(self, *args, **kwargs):
         global STACK_DATABASE
         global WORD_DATABASE
         STACK_DATABASE = self.fcdb.stack_db
@@ -534,6 +554,10 @@ class WordListScreen(Screen):
         db_init()
 
     # def on_pre_enter(self, *args, **kwargs):
+
+    def on_leave(self):
+        self.ids.SelectableGL.clear_widgets()
+        self.ids.SearchBar.text = ''
 
     def load_word_widgets(self, search_result):
         for word_object in search_result:
@@ -561,12 +585,6 @@ class WordListScreen(Screen):
                         pass
             self.ids.SelectableGL.clear_selection()
             self.load_word_widgets(search_result)
-
-    # def __init__(self, *args, **kwargs):
-    #     super(WordListScreen, self).__init__(*args, **kwargs)
-    #     self.word_db = WORD_DATABASE
-    #     self.add_widget(RootRelativeLayout(self.word_db))
-
 
 # class WordListApp(App):
 
