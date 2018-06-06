@@ -115,7 +115,7 @@
 		RETextInput:
 			id: DBName
 			multiline: False
-			pos_hint: {'x': 0.025,'y': 0.9}
+			pos_hint: {'x': 0.035,'y': 0.875}
 			size_hint: 0.4, 0.075
 			hint_text: "Enter Stack Name...."
             on_text: root.validate_text_input()
@@ -129,7 +129,7 @@
 
         Label:
             id: ErrorMessage
-            pos_hint: {'x': 0.45, 'y': 0.925}
+            pos_hint: {'x': 0.46, 'center_y': 0.9025}
             canvas.before:
                 Color:
                     rgba: 0.4, 0.4, 0.4, 0.2
@@ -143,3 +143,31 @@
             valign: 'middle'
             disabled: not root.button_disabled
             bold: True
+
+        WordDBButton:
+            id: mainbtn
+            text: 'Choose a base Word Database'
+            size_hint: 0.3, 0.2
+            pos_hint: {'x': 0.075, 'y': 0.6}
+            disabled: True
+
+        Label:
+            id: DBErrorMessage
+            pos_hint: {'x': 0.46, 'center_y': 0.7}
+            canvas.before:
+                Color:
+                    rgba: 0.4, 0.4, 0.4, 0.2
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint: None, None
+            font_size: 24
+            size: self.texture_size
+            halign: 'right'
+            valign: 'middle'
+            disabled: not root.button_disabled
+            bold: True
+
+<WordDBButton>:
+    size_hint_y: None
+    height: 44
