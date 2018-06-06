@@ -13,6 +13,7 @@ from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.popup import Popup
 from kivy.uix.button import Button
+from kivy.uix.dropdown import DropDown
 
 from functools import partial
 
@@ -37,12 +38,16 @@ from helperfuncs import load_db, save_db, delete_temp
 
 DATABASE_LIST = []
 DB_SEARCH_LIST = []
+WORD_DB_LIST = []
 
 
 def db_init():
     global DATABASE_LIST
     global DB_SEARCH_LIST
+    global WORD_DB_LIST
     DB_SEARCH_LIST = [fcdb.name for fcdb in DATABASE_LIST]
+    WORD_DB_LIST = \
+        [(fcdb.name, fcdb.word_db) for fcdb in DATABASE_LIST]
 
 
 class MainScreenManager(ScreenManager):
@@ -102,7 +107,9 @@ class DataBaseScreen(Screen):
 class CreateDBButton(Button):
 
     def open_popup(self, SelectableGridLayout):
-        popup = CreateDBPopup()
+        global WORD_DB_LIST
+        word_db_list = WORD_DB_LIST
+        popup = CreateDBPopup(word_db_list)
         popup.ids.CreateNewDBBtn.bind(on_release=partial(self.create_new_fcdb,
                                                          popup,
                                                          SelectableGridLayout))
@@ -110,9 +117,9 @@ class CreateDBButton(Button):
 
     def create_new_fcdb(self, popup, SelectableGridLayout, instance):
         new_fcdb = FCDataBase(popup.ids.DBName.text)
-        # TODO:
-        # Add an option to choose words from an existing db in the below line
-        # new_fcdb.word_db = popup.ids.XXXXX.
+        # Adds the selected word db to the new fcdb
+        new_fcdb.word_db = popup.ids.mainbtn.word_db[1]
+        assert isinstance(new_fcdb.word_db, list)
         global DATABASE_LIST
         SelectableGridLayout.add_widget(DBRelativeLayout(new_fcdb))
         DATABASE_LIST.append(new_fcdb)
@@ -120,9 +127,42 @@ class CreateDBButton(Button):
         popup.dismiss()
 
 
+class WordDBButton(Button):
+
+    word_db = ObjectProperty(None)
+
+
+class CustomDropDown(DropDown):
+
+    def __init__(self, word_db_list, *args, **kwargs):
+        super(CustomDropDown, self).__init__(*args, **kwargs)
+        btn = WordDBButton()
+        btn.text = 'Empty Word Database'
+        btn.word_db = ('Empty Word Database', [])
+        btn.bind(on_release=lambda btn: self.select((btn.word_db)))
+        self.add_widget(btn)
+        self.load_word_db_buttons(word_db_list)
+
+    def load_word_db_buttons(self, word_db_list):
+        for word_db in word_db_list:
+            btn = WordDBButton()
+            btn.text = word_db[0]
+            btn.word_db = word_db
+            btn.bind(on_release=lambda btn: self.select((btn.word_db)))
+            self.add_widget(btn)
+
+
 class CreateDBPopup(Popup):
 
     button_disabled = BooleanProperty(True)
+
+    def __init__(self, word_db_list, *args, **kwargs):
+        super(CreateDBPopup, self).__init__(*args, **kwargs)
+        mainbutton = self.ids.mainbtn
+        dropdown = CustomDropDown(word_db_list)
+        mainbutton.bind(on_release=dropdown.open)
+        dropdown.bind(on_select=partial(self.ddfunc, mainbutton))
+        self.validate_db_selection()
 
     def validate_text_input(self):
         global DB_SEARCH_LIST
@@ -130,13 +170,33 @@ class CreateDBPopup(Popup):
         min_len = 3
         cond1 = len(text) < min_len
         cond2 = text in DB_SEARCH_LIST
-        self.button_disabled = cond1 or cond2
-        if(self.button_disabled):
+        if(cond1 or cond2):
             self.ids.ErrorMessage.text = \
                 '* Database name must be Unique and contain more than ' + \
                 f'{min_len} letters'
+            self.ids.mainbtn.disabled = True
         else:
             self.ids.ErrorMessage.text = ""
+            self.ids.mainbtn.disabled = False
+        self.validate_db_selection()
+
+    def validate_db_selection(self):
+        cond3 = self.ids.mainbtn.word_db is None
+        cond4 = self.ids.mainbtn.disabled is True
+        if(cond3):
+            self.ids.DBErrorMessage.text = \
+                '* Please select a base Word Database'
+        else:
+            self.ids.DBErrorMessage.text = ""
+        if(cond4):
+            self.button_disabled = cond4
+        else:
+            self.button_disabled = cond3
+
+    def ddfunc(self, instance, dd, word_database):
+        instance.word_db = word_database
+        instance.text = word_database[0]
+        self.validate_db_selection()
 
 
 class DataBaseApp(App):
