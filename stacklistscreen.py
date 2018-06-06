@@ -213,7 +213,7 @@ class ViewStackPopup(Popup):
 
         Button:
             id: ExitBtn
-            pos_hint: {'x': 0.8, 'y': 0.75}
+            pos_hint: {'x': 0.8, 'y': 0.05}
             size_hint: 0.15, 0.15
             text: "Go Back"
             on_release: root.dismiss()
@@ -225,6 +225,13 @@ class ViewStackPopup(Popup):
             text: "Practice"
             disabled: root.button_disabled
 
+        Button:
+            id: ResetBtn
+            pos_hint: {'x': 0.8, 'y': 0.75}
+            size_hint: 0.15, 0.15
+            text: "Reset Stack Progress"
+            on_release: root.reset_stack()
+
         WordGridLayout:
             canvas.before:
                 Color:
@@ -233,7 +240,7 @@ class ViewStackPopup(Popup):
                     pos: self.pos
                     size: self.size
             id: GL
-            pos_hint: {'x': 0.025, 'y': 0.1}
+            pos_hint: {'x': 0.025, 'y': 0.15}
             size_hint: 0.35, 0.5
             padding: 10, 10
             cols: 1
@@ -321,6 +328,10 @@ class ViewStackPopup(Popup):
     #     SGL = self.ids.ViewWordSGL
     #     for word in self.stack_object.words:
     #         SGL.add_widget(WordRelativeLayout(word))
+
+    def reset_stack(self):
+        self.stack_object.refresh_rank_dict()
+        self.update_progressbars()
 
     def args_converter(self, row_index, rec):
         return {'text': rec.name,
