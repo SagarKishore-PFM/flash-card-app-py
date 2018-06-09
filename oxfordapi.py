@@ -6,7 +6,7 @@ Created on Saturday, March 31st 2018
 """
 
 import requests
-from urllib3.exceptions import HTTPError
+from requests.exceptions import HTTPError
 from word import Word
 from pprint import PrettyPrinter
 
@@ -26,27 +26,42 @@ def getdefinitions(word_object, word_id):
     url_head = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/'
     url = url_head + LANGUAGE + '/' + word_id.lower()
     r = requests.get(url, headers={'app_id': APP_ID, 'app_key': APP_KEY})
+
     try:
         r.raise_for_status()
-        status = True
+        status = True, r.status_code
     except HTTPError:
-        status = False
-
+        status = False, r.status_code
+        return status
     response_dict = r.json()
     header = response_dict['results'][0]
     name = header['word']
     lex_entries = {}
+    AudioLink = ''
     lex_list = header['lexicalEntries']
     for lex in lex_list:
         lexentry = {}
         category = lex['lexicalCategory']
-        AudioLink = lex['pronunciations'][0]['audioFile']
-        sense = lex['entries'][0]['senses'][0]
-        lexentry['definition'] = sense['definitions']
+        try:
+            AudioLink = lex['pronunciations'][0]['audioFile']
+        except KeyError:
+            pass
+        try:
+            sense = lex['entries'][0]['senses'][0]
+            try:
+                lexentry['definition'] = sense['definitions']
+            except KeyError:
+                continue
+        except KeyError:
+            derivativeOf = lex['derivativeOf'][0]['text']
+            status = False, r.status_code, derivativeOf
+            return status
         lexentry['examples'] = []
-        for examples in sense['examples']:
-            lexentry['examples'].append(examples['text'])
-
+        try:
+            for examples in sense['examples']:
+                lexentry['examples'].append(examples['text'])
+        except KeyError:
+            pass
         lex_entries[category] = lexentry
 
     word_object.name = name
@@ -72,9 +87,10 @@ def getsynant(word_object, word_id):
     r = requests.get(url, headers={'app_id': app_id, 'app_key': app_key})
     try:
         r.raise_for_status()
-        status = True
+        status = True, r.status_code
     except HTTPError:
-        status = False
+        status = False, r.status_code
+        return status
     response_dict = r.json()
 
     header = response_dict['results'][0]
@@ -116,7 +132,7 @@ def addword(word_object):
     word_id = word_object.name
     status1 = getdefinitions(word_object, word_id)
     status2 = getsynant(word_object, word_id)
-    return (word_object, status1 and status2)
+    return (word_object, status1, status2)
 
 
 """ DEBUGGING """
@@ -125,12 +141,26 @@ def addword(word_object):
 def main(name=None):
     pp = PrettyPrinter(indent=4)
     if name is None:
-        name = 'set'
+        name = 'hypochondriac'
     a = Word(name)
-    a, status = addword(a, a.name)
-    repr(a)
+    a, status1, status2 = addword(a)
     pp.pprint(a)
-
+    pp.pprint(status1)
+    pp.pprint(status2)
 
 if __name__ == '__main__':
-    main()
+    main('venality')
+
+
+# name = 'venality'
+# pp = PrettyPrinter(indent=4)
+# if name is None:
+#     name = 'hypochondriac'
+# a = Word(name)
+# a, status1, status2 = addword(a)
+# repr(a)
+# pp.pprint(a)
+# if(status1[2]):
+#     a = Word(status1[2])
+#     a, s1, s2 = addword(a)
+

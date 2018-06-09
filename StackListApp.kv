@@ -1,0 +1,637 @@
+#:kivy 1.10.0
+
+# #:import Fact kivy.factory.Factory
+# #:import SelectableLayout compound_selection.SelectableLayout
+# #:import generate_test_word_database testdatabase.generate_test_word_database
+# #:import short_meaning helperfuncs.short_meaning
+# <SV@ScrollView>:
+#     id: SV1
+#     top: self.height
+#     canvas:
+#         Color:
+#             rgba: 1, 0, 0, 0.0
+#         Rectangle:
+#             pos: self.pos
+#             size: self.size
+
+# <WordDescriptionLayout>:
+#     id: WRL
+#     canvas.before:
+#         Color:
+#             rgba: 1, 1, 1, 0.5
+#         Rectangle:
+#             pos: 0, 0
+#             size: self.size
+#     multiselect: False
+#     touch_multiselect: False
+#     Button:
+#         size: root.size
+#         pos: root.pos
+#         id: WordBtn
+#         canvas.before:
+#             Color:
+#                 rgba: .3, .3, .3, 1
+#             Rectangle:
+#                 pos: 0, 0
+#                 size: self.size
+
+#     Label:
+#         id: WordNameLbl
+#         pos_hint: {'x': 0.02, 'y': 0.3}
+#         font_size: 24
+#         bold: True
+#         halign: 'left'
+#         valign: 'middle'
+#         size: WRL.size
+#         texture_size: self.size
+#         text_size: self.width, None
+#         text: root.word_object.name
+
+#     Label:
+
+#         id: WordMeaningLbl
+#         pos_hint: {'x': 0.05, 'y': -0.18}
+#         markup: True
+#         size: WRL.size #[0] * 0.8, WRL.size[1] * 0.8
+#         texture_size: self.size
+#         text_size: self.width * 0.8, self.height * 0.8
+#         halign: 'left'
+#         valign: 'middle'
+#         text: short_meaning(root.word_object)
+
+# <ThesaurusWordGridLayout@SelectableGridLayout>:
+#     canvas:
+#         Color:
+#             rgba: 1, 1, 1, 0.2
+#         Rectangle:
+#             pos: self.pos
+#             size: self.size
+#     multiselect: False
+#     touch_multiselect: False
+#     row_force_default: False
+#     cols: 1
+#     padding: 10, 10
+#     spacing: 20, 20
+#     row_default_height: 100
+#     size_hint: 1, None
+#     on_minimum_height: self.height = self.minimum_height
+
+# <WordSelectableGridLayout@SelectableGridLayout>:
+#     canvas:
+#         Color:
+#             rgba: 1, 1, 1, 1.0
+#         Rectangle:
+#             pos: self.pos
+#             size: self.size
+#     multiselect: False
+#     touch_multiselect: False
+#     row_force_default: False
+#     cols: 1
+#     padding: 10, 10
+#     spacing: 10, 10
+#     row_default_height: 100
+#     col_force_default: False
+#     col_default_width: 200
+#     on_minimum_height: self.height = self.minimum_height
+
+
+# <StackSelectableGridLayout@SelectableGridLayout>:
+#     canvas:
+#         Color:
+#             rgba: 1, 1, 1, 0.0
+#         Rectangle:
+#             pos: self.pos
+#             size: self.size
+#     multiselect: False
+#     touch_multiselect: False
+#     row_force_default: True
+#     cols: 2
+#     padding: 10, 10
+#     spacing: 10, 10
+#     row_default_height: 200
+#     col_force_default: False
+#     col_default_width: 200
+#     pos_hint: {'center_x': 0.5}
+#     size_hint: 1, None
+#     on_minimum_height: self.height = self.minimum_height
+
+
+# <ViewStackPopup>:
+#     id: VSP
+#     title: "Displaying Stack Information"
+#     size_hint: 0.8,0.8
+#     pos: 0,0
+#     separator_color: [1, 1, 1, 1]
+
+#     FloatLayout:
+#         pos: VSP.pos
+
+#         Label:
+#             canvas:
+#                 Color:
+#                     rgba: 1, 1, 1, 1.0
+#                 Rectangle:
+#                     pos: self.pos
+#                     size: self.texture_size       
+#             id: StackNameLbl
+#             halign: 'right'
+#             valign: 'middle'
+#             pos_hint: {'x': -0.4,'y': 0.4}
+#             text: "Stack Name"
+#             size: self.texture_size
+#             color: 1,0,0,1
+#             font_size: 30
+
+#         Label:
+#             id: StackSizeLbl
+#             halign: 'right'
+#             valign: 'middle'
+#             pos_hint: {'x': -0.2,'y': 0.3}
+
+#         Button:
+#             id: ExitBtn
+#             pos_hint: {'x': 0.7, 'y': 0.1}
+#             size_hint: 0.1, 0.1
+#             text: "Exit"
+#             on_release: root.dismiss()
+
+#         Button:
+#             id: PlayBtn
+#             pos_hint: {'x': 0.7, 'y': 0.3}
+#             size_hint: 0.1, 0.1
+#             text: "Practice"
+#             # on_release: root.dismiss()
+#             disabled: root.button_disabled
+
+#         WordGridLayout:
+#             canvas.before:
+#                 Color:
+#                     rgba: 1, 1, 1, 1.0
+#                 Rectangle:
+#                     pos: self.pos
+#                     size: self.size
+#             id: GL
+#             pos_hint: {'x':0.1,'y':0.1}
+#             size_hint: 0.5,0.4
+#             spacing: 10
+#             padding: 10
+#             cols: 1
+#             ViewStackWordViewList:
+#                 pos_hint: {'x':0.3,'y':0.1}
+#                 size_hint: 0.2,0.4
+#                 id: WordViewList
+#                 pos: GL.pos
+#                 size: GL.size
+#         # SV:
+#         #     id:SV
+#         #     height: root.height * 0.65
+#         #     pos_hint: {'x': 0.05, 'y': 0.0}
+#         #     size_hint_x: 0.5
+#         #     size_hint_y: None
+#         #     WordSelectableGridLayout:
+#         #         id: ViewWordSGL
+#         #         pos_hint: {'center_x': 0.5}
+#         #         size_hint: 1, None
+
+#         BoxLayout:
+#             orientation: 'vertical'
+#             pos_hint: {'center_x': 0.6, 'y': 0.6}
+#             size_hint: 0.5,0.3
+#             padding: 10,10
+#             spacing: 5
+
+#             canvas.before:
+#                 Color:
+#                     rgba: 1, 1, 1, 0.5
+#                 Rectangle:
+#                     pos: self.pos
+#                     size: self.size
+
+#             ProgressFloatLayout:
+#                 id: NewPFL
+#                 max_value: root.max_value
+
+#             ProgressFloatLayout:
+#                 id: MasteredPFL
+#                 max_value: root.max_value
+
+#             ProgressFloatLayout:
+#                 id: LearningPFL
+#                 max_value: root.max_value
+
+#             ProgressFloatLayout:
+#                 id: ReviewingPFL
+#                 max_value: root.max_value
+
+
+# <EditStackPopup>:
+# 	id: EditStackPopup
+#     stack_name_lbl: StackNameLbl
+#     stack_size_lbl: StackSizeLbl
+#     stack_name_txt: StackName
+#     title: "Edit Stack Information"
+#     size_hint: 0.7,0.7
+#     separator_color: [1, 1, 1, 1]
+
+
+#     FloatLayout:
+#         id: FL
+# 		pos: EditStackPopup.pos
+#     	Label:
+# 	    	id: StackNameLbl
+# 		    halign: 'right'
+# 		    valign: 'middle'
+#     		pos_hint: {'x': -0.3,'y': 0.4}
+#     		text: "Stack Name"
+
+#     	Label:
+# 	    	id: StackSizeLbl
+# 		    halign: 'right'
+# 		    valign: 'middle'
+#     		pos_hint: {'x': -0.3,'y': -0.1}
+#     		# text: "Stack Size"
+		
+# 		RETextInput:
+# 			id: StackName
+# 			multiline: False
+# 			pos_hint: {'x': 0.4,'y':0.85}
+# 			size_hint: 0.4,0.1
+# 			hint_text: "Enter Stack Name...."
+#             text: root.stack_object.name
+#             on_text: root.validate_text_input()
+
+#         Label:
+#             id: WarningMessage
+#             canvas.before:
+#                 Color:
+#                     rgba: 0.4, 0.4, 0.4, 0.8
+#                 Rectangle:
+#                     pos: WarningMessage.pos
+#                     size: WarningMessage.size
+#             text: 'WARNING: \n Changing the Words in the Stack will reset the progress'
+#             halign: 'center'
+# 		    valign: 'middle'
+#             size_hint: 0.15,0.15
+#             text_size: self.size
+#     		pos_hint: {'x': 0.8,'y': 0.6}
+
+
+#         Label:
+#             id: ErrorMessage
+#             pos_hint: {'x': 0.3,'y': 0.8}
+#             canvas.before:
+#                 Color:
+#                     rgba: 0.4, 0.4, 0.4, 0.2
+#                 Rectangle:
+#                     pos: self.pos
+#                     size: self.size
+#             text: "POSITTION"
+#             size_hint: None, None
+#             font_size: 24
+#             size: self.texture_size
+#             halign: 'right'
+#             valign: 'middle'
+#             disabled: not root.button_disabled
+
+#         Button:
+#             id: EditWordsBtn
+#             pos_hint: {'x': 0.65, 'y': 0.1}
+#             size_hint: 0.1, 0.1
+#             text: "Edit Word"
+#             on_release: root.open_edit_words_popup()
+
+#         Button:
+#             id: SaveChangesBtn
+#             pos_hint: {'x': 0.85, 'y': 0.1}
+#             size_hint: 0.1, 0.1
+#             text: "Save Changes"
+#             # on_release: root.create_new_stack()
+#             disabled: root.button_disabled
+
+
+#         WordGridLayout:
+#             canvas.before:
+#                 Color:
+#                     rgba: 1, 1, 1, 1.0
+#                 Rectangle:
+#                     pos: self.pos
+#                     size: self.size
+#             id: GL
+#             pos_hint: {'x':0.1,'y':0.1}
+#             size_hint: 0.5,0.6
+#             spacing: 10
+#             padding: 10
+#             cols: 2
+
+#             ViewStackWordViewList:
+#                 id: WordViewList
+#                 pos: GL.pos
+#                 size: GL.size
+
+
+# <CreateStackPopup>:
+# 	id: CreateStackPopup
+#     stack_name_lbl: StackNameLbl
+#     stack_size_lbl: StackSizeLbl
+#     title: "Add a new Stack"
+#     size_hint: 0.7,0.7
+#     separator_color: [1, 1, 1, 1]
+
+
+#     FloatLayout:
+# 		pos: CreateStackPopup.pos
+#     	Label:
+# 	    	id: StackNameLbl
+# 		    halign: 'right'
+# 		    valign: 'middle'
+#     		pos_hint: {'x': -0.3,'y': 0.4}
+#     		text: "Stack Name"
+
+#     	Label:
+# 	    	id: StackSizeLbl
+# 		    halign: 'right'
+# 		    valign: 'middle'
+#     		pos_hint: {'x': -0.3,'y': -0.1}
+#     		# text: "Stack Size"
+		
+# 		RETextInput:
+# 			id: StackName
+# 			multiline: False
+# 			pos_hint: {'x': 0.4,'y':0.85}
+# 			size_hint: 0.4,0.1
+# 			hint_text: "Enter Stack Name...."
+#             on_text: root.validate_text_input()
+
+#         Label:
+#             id: ErrorMessage
+#             pos_hint: {'x': 0.3,'y': 0.8}
+#             canvas.before:
+#                 Color:
+#                     rgba: 0.4, 0.4, 0.4, 0.2
+#                 Rectangle:
+#                     pos: self.pos
+#                     size: self.size
+#             text: "POSITTION"
+#             size_hint: None, None
+#             font_size: 24
+#             size: self.texture_size
+#             halign: 'right'
+#             valign: 'middle'
+#             disabled: not root.button_disabled
+
+#         Button:
+#             id: EditWordsBtn
+#             pos_hint: {'x': 0.65, 'y': 0.1}
+#             size_hint: 0.1, 0.1
+#             text: "Add Word"
+#             on_release: root.open_edit_words_popup()
+
+#         Button:
+#             id: SaveChangesBtn
+#             pos_hint: {'x': 0.85, 'y': 0.1}
+#             size_hint: 0.1, 0.1
+#             text: "Save Changes"
+#             # on_release: root.create_new_stack()
+#             disabled: root.button_disabled
+
+
+#         WordGridLayout:
+#             canvas.before:
+#                 Color:
+#                     rgba: 1, 1, 1, 1.0
+#                 Rectangle:
+#                     pos: self.pos
+#                     size: self.size
+#             id: GL
+#             pos_hint: {'x':0.1,'y':0.1}
+#             size_hint: 0.5,0.6
+#             spacing: 10
+#             padding: 10
+#             cols: 2
+
+#             ViewStackWordViewList:
+#                 id: WordViewList
+#                 pos: GL.pos
+#                 size: GL.size
+
+
+# <StackRelativeLayout>:
+
+#     canvas.before:
+#         Color:
+#             rgba: 1, 1, 1, 0.5
+#         Rectangle:
+#             pos: 0, 0
+#             size: self.size
+#     multiselect: False
+#     touch_multiselect: False
+    
+#     StackButton:
+#         id: StackBtn
+#         canvas.before:
+#             Color:
+#                 rgba: .3, .3, .3, 1
+#             Rectangle:
+#                 pos: 0, 0
+#                 size: self.size
+
+#     StackNameLbl:
+#         id: StackNameLabel
+
+#     StackSizeLbl:
+#         id: StackSizeLabel
+
+#     Label:
+#         id: MasteredLabel
+#         pos_hint: {'center_x': 0.5, 'y': -0.1}
+
+#     ProgressBar:
+#         id: MasteredProgressBar
+#         max: root.stack_object.size
+#         pos_hint: {'center_x': 0.5, 'y': 0.25}
+#         size_hint: 0.6, 0.05
+
+
+# <StackButton@Button>:
+#     id: STBTN
+#     size_hint: 1, 1
+
+# <StackNameLbl@Label>:
+#     pos: 100, 80
+#     font_size: 30
+
+# <StackSizeLbl@Label>:
+#     pos: 160, 40
+#     font_size: 20
+
+# <AddTestButton>:
+#     id: TestBtn1
+#     pos_hint: {'x': 0.1,'y': 0.2}
+#     size_hint: 0.15, 0.15
+#     text: 'Add'
+
+# <ViewStackButton>:
+#     pos_hint: {'x': 0.1, 'y': 0.5}
+#     size_hint: 0.15, 0.15
+
+
+# <EditStackButton>:
+#     pos_hint: {'x': 0.8, 'y': 0.5}
+#     size_hint: 0.15, 0.15
+
+# <CreateStackButton>:
+#     pos_hint: {'x': 0.1, 'y': 0.2}
+#     size_hint: 0.15, 0.15
+
+
+# <ListItemButton>:
+#     font_size: 18
+
+# <ProgressFloatLayout>:
+#     canvas.before:
+#         Color:
+#             rgba: 1, 0, 1, 0.2
+#         Rectangle:
+#             pos: self.pos
+#             size: self.size
+#     ProgressBar:
+#         id: PB
+#         pos_hint: {'center_x': 0.5, 'y': 0.3}
+#         size_hint: 0.8, 0.05
+#         max: root.max_value
+
+#     Label:
+#         id: Lbl
+#         pos_hint: {'center_x': 0.5, 'y': 0.15}
+#         font_size: 18
+
+# <EditWordsPopup>:
+#     id: CreateStackPopup
+#     title: "Edit Words"
+#     size_hint: 0.7,0.7
+#     separator_color: [1, 1, 1, 1]
+#     FloatLayout:
+#         id: RootFL
+#         RETextInput:
+#             id: SearchBar
+#             pos_hint: {'center_x':0.4,'y':0.85}
+#             size_hint: 0.7,0.1
+#             on_text: root.search_words(self.text)
+#             multiline: False
+
+#         Button:
+#             id: SaveChangesBtn
+#             text: "Save changes"
+#             pos_hint: {'x':0.8,'y':0.85}
+#             size_hint: 0.2,0.1
+
+#         Button:
+#             id: AddWordsBtn
+#             text: "Add Selected Words"
+#             pos_hint: {'x':0.03,'y':0.7}
+#             size_hint: 0.17,0.1
+#             # on_release: TestLbl.text = str(','.join(x.word_object.name for x in root.search_list_adapter.selection))
+#             on_release: root.populate_selected_list()
+#             # on_release: root.populate_label()
+        
+#         Button:
+#             id: RemoveWordsBtn
+#             text: "Remove Selected Words"
+#             pos_hint: {'x':0.7,'y':0.7}
+#             size_hint: 0.17,0.1
+#             on_release: root.remove_selected_list()
+
+
+#         WordGridLayout:
+#             canvas.before:
+#                 Color:
+#                     rgba: 1, 1, 0, 1.0
+#                 Rectangle:
+#                     pos: self.pos
+#                     size: self.size
+#             id: SearchWordGL
+#             pos_hint: {'x':0.03,'y':0.05}
+#             size_hint: 0.17,0.6
+#             spacing: 10
+#             padding: 10
+#             cols: 1
+
+#             ViewStackWordViewList:
+#                 id: SearchWordViewList
+#                 pos: SearchWordGL.pos
+#                 size: SearchWordGL.size
+
+#         WordGridLayout:
+#             canvas.before:
+#                 Color:
+#                     rgba: 0, 1, 1, 1.0
+#                 Rectangle:
+#                     pos: self.pos
+#                     size: self.size
+#             id: SelectedWordGL
+#             pos_hint: {'x':0.7,'y':0.05}
+#             size_hint: 0.17,0.6
+#             spacing: 10
+#             padding: 10
+#             cols: 1
+#             ViewStackWordViewList:
+#                 id: SelectedWordViewList
+#                 pos: SelectedWordGL.pos
+#                 size: SelectedWordGL.size
+#         SV:
+#             id:SV
+#             height: RootFL.height * 0.6
+#             pos_hint: {'x': 0.25, 'y': 0.05}
+#             size_hint: 0.4, None
+#             ThesaurusWordGridLayout:
+#                 id: ThesaurusWordGL
+
+
+# <RootFloatLayout>:
+#     id: FL
+#     canvas.before:
+#         Color:
+#             rgba: 1, 0, 0, 0.0
+#         Rectangle:
+#             pos: 0, 0
+#             size: self.size
+
+#     ViewStackButton:
+#         id: ViewStackBtn
+#         on_release: self.open_popup(StackSGL.return_selected_stack_layout())
+#         disabled: StackSGL.button_disabled
+#         text: "Practice Selected Stack"
+
+#     EditStackButton:
+#         id: EditStackBtn
+#         on_release: self.open_popup(StackSGL.return_selected_stack_layout())
+#         disabled: StackSGL.button_disabled
+#         text: "Edit Selected Stack"
+
+#     CreateStackButton:
+#         id: CreateStackBtn
+#         on_release: self.open_popup(root.ids.StackSGL)
+#         text: "Create a new Stack"
+
+#     SV:
+#         id:SV
+#         height: root.height * 0.7
+#         pos_hint: {'center_x': .5}
+#         size_hint_x: 0.5
+#         size_hint_y: None
+        
+#         StackSelectableGridLayout:
+#             id: StackSGL
+            
+#             # Button:
+#             #     text: "button 1"
+#             # Button:
+#             #     text: "button 2"
+#             # Button:
+#             #     text: "button 3"
+#             # Button:
+#             #     text: "button 4"
+#             # Button:
+#             #     text: "button 5"
+
+

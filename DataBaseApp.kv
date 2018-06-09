@@ -1,0 +1,173 @@
+#:kivy 1.10.0
+#:import SelectableGridLayout stacklistscreen.SelectableGridLayout
+#:import RETextInput stacklistscreen.RETextInput
+<Button>:
+    font_size: 20
+
+<DBSelectableGridLayout@SelectableGridLayout>:
+    canvas:
+        Color:
+            rgba: 1, 1, 1, 1.0
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    multiselect: False
+    touch_multiselect: False
+    row_force_default: True
+    cols: 2
+    padding: 10, 10
+    spacing: 10, 10
+    row_default_height: 200
+    col_force_default: False
+    col_default_width: 200
+    pos_hint: {'center_x': 0.5}
+    size_hint: 1, None
+    on_minimum_height: self.height = self.minimum_height
+
+
+<DBRelativeLayout>:
+
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 0.5
+        Rectangle:
+            pos: 0, 0
+            size: self.size
+    multiselect: False
+    touch_multiselect: False
+
+    Button:
+        id: StackBtn
+        canvas.before:
+            Color:
+                rgba: 0.3, 0.3, 0.3, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        size_hint: 1, 1
+        on_release: print(self.text)
+
+    Label:
+        id: DBNameLbl
+        pos_hint: {'center_x': 0.5, 'y': 0.3}
+        halign: 'center'
+        valign: 'middle'
+        font_size: 30
+
+    Button:
+        id: StackBtn
+        text: 'View Stacks'
+        size_hint: 0.425, 0.4
+        pos_hint: {'x': 0.025, 'y': 0.1}
+        on_release: root.select_stack_database(self)
+
+    Button:
+        id: WordBtn
+        text: 'View Words'
+        size_hint: 0.425, 0.4
+        pos_hint: {'x': 0.55, 'y': 0.1}
+        on_release: root.select_word_database(self)
+
+
+<DataBaseScreen>:
+    name: 'db screen'
+    FloatLayout:
+
+        Label:
+            id: Title
+            text: "App name goes here"
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
+            font_size: 60
+            size: self.texture_size
+            halign: 'center'
+            valign: 'middle'
+        ScrollView:
+            top: self.height
+            id:SV
+            height: root.height * 0.7
+            pos_hint: {'center_x': 0.5}
+            size_hint_x: 0.5
+            size_hint_y: None
+            bar_color: 0.1, 0.5, 1, 1
+            bar_width: 5
+
+            DBSelectableGridLayout:
+                id: DBSelGL
+
+        CreateDBButton:
+            id: CreateDBBtn
+            text: 'Create Database'
+            pos_hint: {'x': 0.025, 'y': 0.7}
+            size_hint: 0.15, 0.15
+            on_release: self.open_popup(root.ids.DBSelGL)
+
+<CreateDBPopup>:
+    
+    title: "Create a new Database"
+    title_size: '22sp'
+    size_hint: 0.7, 0.7
+    separator_color: [1, 1, 1, 1]
+
+
+    FloatLayout:
+		pos: root.pos
+		
+		RETextInput:
+			id: DBName
+			multiline: False
+			pos_hint: {'x': 0.035,'y': 0.875}
+			size_hint: 0.4, 0.075
+			hint_text: "Enter Stack Name...."
+            on_text: root.validate_text_input()
+
+        Button:
+            id: CreateNewDBBtn
+            text: 'Create New Database'
+            pos_hint: {'x': 0.65, 'y': 0.05}
+            size_hint: 0.3, 0.2
+            disabled: root.button_disabled
+
+        Label:
+            id: ErrorMessage
+            pos_hint: {'x': 0.46, 'center_y': 0.9025}
+            canvas.before:
+                Color:
+                    rgba: 0.4, 0.4, 0.4, 0.2
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint: None, None
+            font_size: 24
+            size: self.texture_size
+            halign: 'right'
+            valign: 'middle'
+            disabled: not root.button_disabled
+            bold: True
+
+        WordDBButton:
+            id: mainbtn
+            text: 'Choose a base Word Database'
+            size_hint: 0.3, 0.2
+            pos_hint: {'x': 0.075, 'y': 0.6}
+            disabled: True
+
+        Label:
+            id: DBErrorMessage
+            pos_hint: {'x': 0.46, 'center_y': 0.7}
+            canvas.before:
+                Color:
+                    rgba: 0.4, 0.4, 0.4, 0.2
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint: None, None
+            font_size: 24
+            size: self.texture_size
+            halign: 'right'
+            valign: 'middle'
+            disabled: not root.button_disabled
+            bold: True
+
+<WordDBButton>:
+    size_hint_y: None
+    height: 44
