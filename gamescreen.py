@@ -2,7 +2,6 @@
 Created on Saturday, May 7th, 2018
 @author: sagar
 
-
 The game screen which implements the flash card algorithm and provides the
 feature to continue where you left off.
 """

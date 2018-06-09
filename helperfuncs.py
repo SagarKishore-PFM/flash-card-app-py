@@ -1,12 +1,12 @@
-from testdatabase import generate_test_word_database
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
+from kivy.core.audio import SoundLoader
+from kivy.clock import Clock
+
 import string
 import requests
-from kivy.core.audio import SoundLoader
 import os
 import jsonpickle
-from kivy.clock import Clock
 from functools import partial
 
 
@@ -112,47 +112,3 @@ def short_meaning(word):
         short_meaning_string = short_meaning_string + definition_string
 
     return short_meaning_string
-
-
-class WordDescTest(FloatLayout):
-    b = generate_test_word_database()
-    a = b[34]
-    a.definitions['Adjective']['examples'].append("MY VERY OWN")
-    ms = word_description(a)
-    url = 'http://audio.oxforddictionaries.com/en/mp3/xconscientious_gb_2.mp3'
-    r = requests.get(url)
-
-    def play_mp3(self, r):
-
-        cwd = os.getcwd()
-        file = cwd + '\\temp' + '\\audiotemp.mp3'
-        with open(file, 'wb') as f:
-            f.write(r.content)
-        sound = SoundLoader.load(file)
-        sound.play()
-
-        Clock.schedule_once(partial(self.delete_file, file, sound), 4)
-
-    def delete_file(self, file, sound, dt):
-        print(file, sound, dt)
-        sound.unload()
-        os.remove(file)
-
-
-class WordDescApp(App):
-    def build(self):
-        return WordDescTest()
-
-
-def main():
-    WordDescApp().run()
-
-
-if __name__ == '__main__':
-    main()
-
-# DEBUGGING:
-# for x in generate_test_word_database():
-#     if(x.synant == []):
-#         print(x.name)
-#     b = word_description(x)

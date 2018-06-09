@@ -3,6 +3,10 @@
 Created on Saturday, March 31st 2018
 
 @author: sagar
+
+API wrapper that fetches word definitions, example sentences, synonyms,
+antonyms, audio file link for the given word. Handles exceptions as well
+for specific cases.
 """
 
 import requests

@@ -3,6 +3,9 @@
 Created on Saturday, April 9th 2018
 
 @author: sagar
+
+Kivy screen that allows for adding new Stacks as well as editing, deleting
+and viewing existing Stacks in the selected Stack Database.
 """
 
 from kivy.uix.screenmanager import Screen
@@ -171,6 +174,9 @@ class ViewStackButton(Button):
         popup.ids.PlayBtn.bind(on_release=partial(self.practice_stack,
                                                   popup,
                                                   selected_stack_object))
+        popup.ids.ResetBtn.bind(on_release=partial(
+                                    popup.reset_stack,
+                                    selected_stack_relative_layout))
         popup.open()
 
     def practice_stack(self, popup, selected_stack, instance):
@@ -208,7 +214,7 @@ class ViewStackPopup(Popup):
             halign: 'right'
             valign: 'middle'
             text: "Stack Name"
-            color: 1, 0, 1, 1
+            color: 0.1, 0.4, 0.81, 1
             font_size: 40
 
         Button:
@@ -230,7 +236,6 @@ class ViewStackPopup(Popup):
             pos_hint: {'x': 0.8, 'y': 0.75}
             size_hint: 0.15, 0.15
             text: "Reset Stack Progress"
-            on_release: root.reset_stack()
 
         WordGridLayout:
             canvas.before:
@@ -329,8 +334,9 @@ class ViewStackPopup(Popup):
     #     for word in self.stack_object.words:
     #         SGL.add_widget(WordRelativeLayout(word))
 
-    def reset_stack(self):
+    def reset_stack(self, selected_stack_relative_layout, instance):
         self.stack_object.refresh_rank_dict()
+        selected_stack_relative_layout.redraw()
         self.update_progressbars()
 
     def args_converter(self, row_index, rec):
@@ -1040,7 +1046,7 @@ class DeleteStackPopup(Popup):
             # disabled: True
 
         Button:
-            text:"NEIN!"
+            text:"NO"
             size_hint: 0.4, 0.35
             pos_hint: {'x': 0.55, 'y': 0.1}
             on_release: root.dismiss()

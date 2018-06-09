@@ -4,7 +4,7 @@ Created on Saturday, April 24th 2018
 
 @author: sagar
 
-Kivy screen that allows for adding new words as well as editting, deleting
+Kivy screen that allows for adding new words as well as deleting
 and viewing existing words in the selected Word Database.
 """
 
@@ -337,6 +337,7 @@ class AddWordPopup(Popup):
         super(AddWordPopup, self).__init__(*args, **kwargs)
 
     def check_input(self, text):
+        text = text.lower()
         global WORD_LIST
         if text in WORD_LIST:
             self.error_disabled = False
@@ -348,7 +349,7 @@ class AddWordPopup(Popup):
             self.exists_flag = False
 
     def call_api(self, text):
-
+        text = text.lower()
         if(self.exists_flag):
             return
 
@@ -424,7 +425,7 @@ class DeleteWordPopup(Popup):
             # disabled: True
 
         Button:
-            text:"NEIN!"
+            text:"NO"
             size_hint: 0.3, 0.35
             pos_hint: {'x': 0.55, 'y': 0.1}
             on_release: root.dismiss()
@@ -511,7 +512,7 @@ class WordListScreen(Screen):
         bar_width: 5
         canvas.before:
             Color:
-                rgba: 1, 1, 0, 1.0
+                rgba: 0.35, 0.55, 0.68, 1.0
             Rectangle:
                 pos: SV.pos
                 size: SV.size
@@ -522,7 +523,7 @@ class WordListScreen(Screen):
 <WordSelectableGridLayout@SelectableGridLayout>:
     canvas:
         Color:
-            rgba: 1, 1, 1, 1.0
+            rgba: 1, 1, 1, 0.0
         Rectangle:
             pos: self.pos
             size: self.size
@@ -573,6 +574,7 @@ class WordListScreen(Screen):
         except AttributeError:
             pass
         global WORD_SEARCH_DICT
+        ip_text = ip_text.lower()
         search_result = []
         if(len(ip_text) != 0):
             for key in WORD_SEARCH_DICT:

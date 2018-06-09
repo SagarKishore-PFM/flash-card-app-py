@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+"""
+Kivy mixer class for implementing compound selection behavior with any Kivy layouts.
+"""
 from kivy.uix.behaviors.compoundselection import CompoundSelectionBehavior
 from kivy.uix.button import Button
 from kivy.uix.behaviors import FocusBehavior
@@ -50,11 +54,11 @@ class SelectableLayout(FocusBehavior, CompoundSelectionBehavior):
             self.deselect_node(button)
 
     def select_node(self, node):
-        node.background_color = (1, 1, 0, 1)
+        node.background_color = (0.5, 0.2, 0.1, 0.9)
         return super(SelectableLayout, self).select_node(node)
 
     def deselect_node(self, node):
-        node.background_color = (.3, .3, .3, 1)
+        node.background_color = (0.3, 0.3, 0.3, 0.81)
         super(SelectableLayout, self).deselect_node(node)
 
     def on_selected_nodes(self, gird, nodes):
