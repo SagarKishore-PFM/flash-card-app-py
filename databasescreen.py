@@ -35,6 +35,9 @@ from helperfuncs import load_db, save_db, delete_temp
 # Save db changes at appropriate places and on exit of app
 # Clean up UI
 # In word list screen show a label with number of words in database
+# Fix the os.cwd + db and temp
+# Temp folder is not there...you must add it in on_start in app
+# Fix the screen res in on_start
 
 DATABASE_LIST = []
 DB_SEARCH_LIST = []
@@ -207,6 +210,7 @@ class DataBaseApp(App):
         global DATABASE_LIST
         DATABASE_LIST = load_db()
         db_init()
+        self.title = 'Flash Card App'
         self.sm = ScreenManager()
         self.sm.current_screen
         d = DataBaseScreen(DATABASE_LIST)
