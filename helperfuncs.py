@@ -1,17 +1,13 @@
-from kivy.app import App
-from kivy.uix.floatlayout import FloatLayout
 from kivy.core.audio import SoundLoader
-from kivy.clock import Clock
 
 import string
 import requests
 import os
 import jsonpickle
-from functools import partial
 
 
 def load_db():
-    dir_path = os.getcwd() + '\\db\\'
+    dir_path = os.path.join(os.getcwd(), 'db', '')
     dir_, subdirs_, files_ = next(os.walk(dir_path))
     fpaths = [dir_ + file_ for file_ in files_]
     database_list = []
@@ -23,7 +19,7 @@ def load_db():
 
 
 def save_db(database_list):
-    dir_path = os.getcwd() + '\\db\\'
+    dir_path = os.path.join(os.getcwd(), 'db', '')
     for fcdb in database_list:
         file_path = dir_path + fcdb.name + '.json'
         fcdb_json = jsonpickle.encode(fcdb, keys=True)
@@ -35,7 +31,8 @@ def play(word):
     if(word.audio == ''):
         return -1
     file_name = word.audio.split('/')[-1]
-    temp_dir = os.getcwd() + '\\temp\\'
+    cwd = os.getcwd()
+    temp_dir = os.path.join(cwd, 'temp', '')
     fpath = temp_dir + file_name
     if file_name not in os.listdir(temp_dir):
         r = requests.get(word.audio)
@@ -53,7 +50,7 @@ def unload_sound(instance):
 
 def delete_temp():
         cwd = os.getcwd()
-        temp_dir = cwd + '\\temp\\'
+        temp_dir = os.path.join(cwd, 'temp', '')
         dir_, subdirs_, files_ = next(os.walk(temp_dir))
         fpaths = [temp_dir + file_ for file_ in files_]
         for path in fpaths:
