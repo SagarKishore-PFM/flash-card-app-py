@@ -2,7 +2,7 @@
 """
 Created on Saturday, March 31st 2018
 
-@author: sagar
+@author: Sagar Kishore
 
 API wrapper that fetches word definitions, example sentences, synonyms,
 antonyms, audio file link for the given word. Handles exceptions as well
@@ -139,7 +139,7 @@ def addword(word_object):
     return (word_object, status1, status2)
 
 
-""" DEBUGGING """
+# DEBUGGING
 
 
 def main(name=None):
@@ -152,14 +152,15 @@ def main(name=None):
     pp.pprint(status1)
     pp.pprint(status2)
 
+
 if __name__ == '__main__':
     main('venality')
 
 
-# name = 'venality'
+# -i debugging
+
+# name = 'precipitate'
 # pp = PrettyPrinter(indent=4)
-# if name is None:
-#     name = 'hypochondriac'
 # a = Word(name)
 # a, status1, status2 = addword(a)
 # repr(a)
@@ -167,4 +168,3 @@ if __name__ == '__main__':
 # if(status1[2]):
 #     a = Word(status1[2])
 #     a, s1, s2 = addword(a)
-
