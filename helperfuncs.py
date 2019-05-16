@@ -49,12 +49,12 @@ def unload_sound(instance):
 
 
 def delete_temp():
-        cwd = os.getcwd()
-        temp_dir = os.path.join(cwd, 'temp', '')
-        dir_, subdirs_, files_ = next(os.walk(temp_dir))
-        fpaths = [temp_dir + file_ for file_ in files_]
-        for path in fpaths:
-            os.remove(path)
+    cwd = os.getcwd()
+    temp_dir = os.path.join(cwd, 'temp', '')
+    dir_, subdirs_, files_ = next(os.walk(temp_dir))
+    fpaths = [temp_dir + file_ for file_ in files_]
+    for path in fpaths:
+        os.remove(path)
 
 
 def word_description(word):

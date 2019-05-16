@@ -2,14 +2,13 @@
 """
 Created on Saturday, May 31st 2018
 
-@author: sagar
+@author: Sagar Kishore
 """
 
 
 class FCDataBase:
     """
-    Flash Card Database Class that takes in the database 
-    name as mandatory parameter.
+    Flash Card Database Class that takes in the database name as mandatory parameter.
     """
 
     def __init__(self, name, **kwargs):

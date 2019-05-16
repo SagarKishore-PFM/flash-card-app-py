@@ -14,10 +14,12 @@ class SelectableLayout(FocusBehavior, CompoundSelectionBehavior):
         """Based on FocusBehavior that provides automatic keyboard
         access, key presses will be used to select children.
         """
-        if super(SelectableLayout, self).keyboard_on_key_down(window,
-                                                              keycode,
-                                                              text,
-                                                              modifiers):
+        if super(SelectableLayout, self).keyboard_on_key_down(
+            window,
+            keycode,
+            text,
+            modifiers,
+        ):
             return True
         if self.select_with_key_down(window, keycode, text, modifiers):
             return True
@@ -49,8 +51,7 @@ class SelectableLayout(FocusBehavior, CompoundSelectionBehavior):
     def button_touch_up(self, button, touch):
         """ Use collision detection to de-select buttons when the touch
         occurs outside their area and *touch_multiselect* is not True. """
-        if not (button.collide_point(*touch.pos) or
-                self.touch_multiselect):
+        if not button.collide_point(*touch.pos) or self.touch_multiselect:
             self.deselect_node(button)
 
     def select_node(self, node):

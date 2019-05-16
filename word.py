@@ -2,7 +2,7 @@
 """
 Created on Saturday, March 31st 2018
 
-@author: sagar
+@author: Sagar Kishore
 """
 
 
@@ -19,10 +19,11 @@ class Word:
 
     def __str__(self):
         return f"""\
-        Word Obeject - {self.name}
-        Audio URL - {self.audio}
-        Definitions - {self.definitions}
-        Synonyms and Antonyms - {self.synant}"""
+Word Obeject - {self.name}
+Audio URL - {self.audio}
+Definitions - {self.definitions}
+Synonyms and Antonyms - {self.synant}
+"""
 
-    def __repr____(self):
-        return f'Word Object - {self.name}'
+    def __repr__(self):
+        return f'{self.name.title()}'
