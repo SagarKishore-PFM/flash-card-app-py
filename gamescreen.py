@@ -1,6 +1,6 @@
 """
 Created on Saturday, May 7th, 2018
-@author: sagar
+@author: Sagar Kishore
 
 The game screen which implements the flash card algorithm and provides the
 feature to continue where you left off.
@@ -20,24 +20,6 @@ from kivy.lang import Builder
 from random import randrange
 
 from helperfuncs import word_description, play
-
-# select_stack = generate_test_stack_database()[0]
-
-# PRE BETA
-
-# TODO:
-
-# >> Color or add an image to the Yes, No, FrontFace Word Name, Audio Buttons
-# >> Change font size for FF Word Name Button
-# >> New function needed for word description in BF 2nd row
-# >> Remove new words progress bar and label once you are done
-# >> Add a button to go back to the stack list screen which also saves state
-# >> This means saving the rank_dict and in turn making rank_dict an instance
-#     var for Stack class
-# >> Maybe add a slide animation??
-# >> Figure out how to pass the selected stack across screens
-# >> Make the kivy file uniform in terms of linting
-# >> Remove the prints and make them to log instead
 
 
 class GameScreen(Screen):
@@ -68,19 +50,15 @@ class GameScreen(Screen):
 
         GamePFL:
             id: NewPFL
-            # max_value: root.max_value
 
         GamePFL:
             id: MasteredPFL
-            # max_value: root.max_value
 
         GamePFL:
             id: ReviewingPFL
-            # max_value: root.max_value
 
         GamePFL:
             id: LearningPFL
-            # max_value: root.max_value
 
 
 <GamePFL@ProgressFloatLayout>:
@@ -179,7 +157,7 @@ class GameScreen(Screen):
         non_zero_list = []
         for i, x in enumerate(lenlist):
             if(x > 0):
-                non_zero_list.append(str(i-1))
+                non_zero_list.append(str(i - 1))
         try:
             bottom1, bottom2 = non_zero_list[:2]
         except ValueError:
@@ -354,7 +332,7 @@ class AnimatedLayout(BoxLayout):
             item.angle = 0
 
     def flip_animation(self):
-        anim = Animation(angle=360, duration=0.4, s=1/60, t='in_expo')
+        anim = Animation(angle=360, duration=0.4, s=1 / 60, t='in_expo')
         anim.start(self)
         Clock.schedule_once(self.draw_back_face, anim.duration)  # + 0.1)
 
