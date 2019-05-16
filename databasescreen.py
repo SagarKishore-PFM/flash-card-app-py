@@ -2,7 +2,7 @@
 """
 Created on Saturday, May 26th 2018
 
-@author: sagar
+@author: Sagar Kishore
 
 Kivy screen that displays the options for databases to select for the app.
 """
@@ -24,20 +24,13 @@ from gamescreen import GameScreen
 from helperfuncs import load_db, save_db, delete_temp
 
 # TODO:
-
 # Maybe make the stack and word databases object property inside the
 #   screen manager. This way you can access it everywhere with
 #   screen.manager.DB. Check if changing on other screens reflects it
 #   here and if you can have a on_db function.
-# Check what happens when you send empty stack and word databases to stack and
-#   word screens
-# Test more for empty databases... seems good so far
-# Save db changes at appropriate places and on exit of app
-# Clean up UI
-# In word list screen show a label with number of words in database
-# Fix the os.cwd + db and temp
-# Temp folder is not there...you must add it in on_start in app
-# Fix the screen res in on_start
+# Make the prints as Log
+# Add a label at the top of game screen showing the selected stack name
+# Timer maybe? (in game screen)
 
 DATABASE_LIST = []
 DB_SEARCH_LIST = []
@@ -49,8 +42,7 @@ def db_init():
     global DB_SEARCH_LIST
     global WORD_DB_LIST
     DB_SEARCH_LIST = [fcdb.name for fcdb in DATABASE_LIST]
-    WORD_DB_LIST = \
-        [(fcdb.name, fcdb.word_db) for fcdb in DATABASE_LIST]
+    WORD_DB_LIST = [(fcdb.name, fcdb.word_db) for fcdb in DATABASE_LIST]
 
 
 class MainScreenManager(ScreenManager):
@@ -113,9 +105,13 @@ class CreateDBButton(Button):
         global WORD_DB_LIST
         word_db_list = WORD_DB_LIST
         popup = CreateDBPopup(word_db_list)
-        popup.ids.CreateNewDBBtn.bind(on_release=partial(self.create_new_fcdb,
-                                                         popup,
-                                                         SelectableGridLayout))
+        popup.ids.CreateNewDBBtn.bind(
+            on_release=partial(
+                self.create_new_fcdb,
+                popup,
+                SelectableGridLayout
+            )
+        )
         popup.open()
 
     def create_new_fcdb(self, popup, SelectableGridLayout, instance):
@@ -187,8 +183,7 @@ class CreateDBPopup(Popup):
         cond3 = self.ids.mainbtn.word_db is None
         cond4 = self.ids.mainbtn.disabled is True
         if(cond3):
-            self.ids.DBErrorMessage.text = \
-                '* Please select a base Word Database'
+            self.ids.DBErrorMessage.text = '* Please select a base Word Database'
         else:
             self.ids.DBErrorMessage.text = ""
         if(cond4):
