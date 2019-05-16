@@ -2,7 +2,7 @@
 """
 Created on Saturday, April 24th 2018
 
-@author: sagar
+@author: Sagar Kishore
 
 Kivy screen that allows for adding new words as well as deleting
 and viewing existing words in the selected Word Database.
@@ -24,12 +24,7 @@ from oxfordapi import addword
 from compound_selection import SelectableLayout
 from helperfuncs import word_description, short_meaning, play
 
-# TODO:
 
-#     >> Use shorten in Label or make the WordRL bigger?
-#     >> Fix the short description in WordRL
-
-WORD_DATABASE = []
 STACK_DATABASE = []
 WORD_LIST = ''
 WORD_SEARCH_DICT = ''
@@ -78,7 +73,6 @@ class WordRelativeLayout(SelectableLayout, RelativeLayout):
         text_size: self.width, None
 
     Label:
-
         id: WordMeaningLbl
         pos_hint: {'x': 0.08, 'y': -0.18}
         markup: True
@@ -227,15 +221,14 @@ class AddWordButton(Button):
     def open_popup(self, selectable_grid_layout):
 
         popup = AddWordPopup()
-        popup.ids.SaveChangesBtn.bind(on_release=partial(self.add_new_word,
-                                                         popup,
-                                                         selectable_grid_layout
-                                                         ))
+        popup.ids.SaveChangesBtn.bind(on_release=partial(
+            self.add_new_word,
+            popup,
+            selectable_grid_layout,
+        ))
         popup.open()
 
     def add_new_word(self, popup, selectable_grid_layout, instance):
-        # print("adding new word -->", popup.ids.TextIP.text)
-        # print("adding new word -->", popup.word_object)
         new_word_RL = WordRelativeLayout(popup.word_object)
         selectable_grid_layout.clear_selection()
         selectable_grid_layout.add_widget(new_word_RL)
@@ -248,7 +241,6 @@ class AddWordButton(Button):
 class AddWordPopup(Popup):
 
     Builder.load_string("""
-#:import RETextInput stacklistscreen.RETextInput
 <AddWordPopup>:
     id: AddWordPopup
     title: "Add a new Word"
@@ -265,7 +257,7 @@ class AddWordPopup(Popup):
                 pos: self.pos
                 size: self.size
 
-        RETextInput:
+        WordRETextInput:
             id: TextIP
             size_hint: 0.85, 0.075
             pos_hint: {'center_x': 0.5, 'y':0.9}
@@ -381,10 +373,11 @@ class DeleteWordButton(Button):
 
     def open_popup(self, selectable_grid_layout):
         popup = DeleteWordPopup()
-        popup.ids.DeleteBtn.bind(on_release=partial(self.delete_word,
-                                                    popup,
-                                                    selectable_grid_layout
-                                                    ))
+        popup.ids.DeleteBtn.bind(on_release=partial(
+            self.delete_word,
+            popup,
+            selectable_grid_layout,
+        ))
         popup.open()
 
     def delete_word(self, popup, selectable_grid_layout, instance):
@@ -434,9 +427,8 @@ class DeleteWordPopup(Popup):
 
 class WordRETextInput(TextInput):
 
-    pat1 = re.compile('[^a-zA-Z0-9\s]')
-    # pat = re.compile('^\d+|[^a-zA-Z0-9\s]')
-    pat2 = re.compile('[^A-Za-z]')
+    pat1 = re.compile(r'[^a-zA-Z\-\s]')
+    pat2 = re.compile(r'[^A-Za-z]')
 
     def insert_text(self, substring, from_undo=False):
         if(len(self.text) == 0):
@@ -458,12 +450,22 @@ class WordListScreen(Screen):
             pos: self.pos
             size: self.size
 
+    Label:
+        id: DBTitle
+        pos_hint: {'center_x': 0.5, 'y': 0.425}
+        font_size: 55
+        size: self.texture_size
+        halign: 'center'
+        valign: 'middle'
+
     WordRETextInput:
         id: SearchBar
-        pos_hint: {'center_x': 0.5, 'y': 0.865}
-        size_hint: 0.6, 0.065
+        multiline: False
+        pos_hint: {'center_x': 0.5, 'y': 0.825}
+        size_hint: 0.5, 0.045
         hint_text: "Search words..."
         on_text: root.search_words(self.text)
+        font_size: 20
 
     ViewWordButton:
         id: ViewWordBtn
@@ -553,8 +555,7 @@ class WordListScreen(Screen):
         STACK_DATABASE = self.fcdb.stack_db
         WORD_DATABASE = self.fcdb.word_db
         db_init()
-
-    # def on_pre_enter(self, *args, **kwargs):
+        self.ids.DBTitle.text = self.fcdb.name
 
     def on_leave(self):
         self.ids.SelectableGL.clear_widgets()
@@ -587,16 +588,3 @@ class WordListScreen(Screen):
                         pass
             self.ids.SelectableGL.clear_selection()
             self.load_word_widgets(search_result)
-
-# class WordListApp(App):
-
-#     def build(self):
-#         return WordListScreen()
-
-
-# def main():
-#     WordListApp().run()
-
-
-# if __name__ == '__main__':
-#     main()
