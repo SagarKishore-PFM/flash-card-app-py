@@ -2,7 +2,7 @@
 """
 Created on Saturday, April 9th 2018
 
-@author: sagar
+@author: Sagar Kishore
 
 Kivy screen that allows for adding new Stacks as well as editing, deleting
 and viewing existing Stacks in the selected Stack Database.
@@ -29,26 +29,6 @@ from functools import partial
 import re
 
 from stack import Stack
-
-# ChangeLog:
-
-# Version 0.2.0:
-
-# The new UI design allows for ease of data manipulation and access.
-# This includes 4 buttons surrounding the List of stacks.
-# The Stacks are now selectable thanks to the compound_selection.py module.
-# The buttons surrounding the SelectableGridLayout will be disabled until a
-#   selection is made.
-# Every button takes in the selected_stack_object as an argument.
-
-# TODO:
-
-# >> Cleanup the code
-
-# >> Edit Words Popup:
-#     See if you want to merge the thesaurus and the search list into one
-#     Give a list of old words?
-#     Fix the short description
 
 
 STACK_DATABASE = []
@@ -137,8 +117,10 @@ class StackRelativeLayout(SelectableLayout, RelativeLayout):
 
     def redraw(self, dt=0):
         self.ids.StackNameLabel.text = self.stack_object.name
+
         self.ids.MasteredLabel.text = 'Mastered {0} / {1} words'.format(
             len(self.stack_object.rank_dict['6']), self.stack_object.size)
+
         self.ids.MasteredPB.value = len(self.stack_object.rank_dict['6'])
 
 
@@ -171,12 +153,15 @@ class ViewStackButton(Button):
     def open_popup(self, selected_stack_relative_layout):
         selected_stack_object = selected_stack_relative_layout.stack_object
         popup = ViewStackPopup(selected_stack_object)
-        popup.ids.PlayBtn.bind(on_release=partial(self.practice_stack,
-                                                  popup,
-                                                  selected_stack_object))
+        popup.ids.PlayBtn.bind(on_release=partial(
+            self.practice_stack,
+            popup,
+            selected_stack_object,
+        ))
         popup.ids.ResetBtn.bind(on_release=partial(
-                                    popup.reset_stack,
-                                    selected_stack_relative_layout))
+            popup.reset_stack,
+            selected_stack_relative_layout,
+        ))
         popup.open()
 
     def practice_stack(self, popup, selected_stack, instance):
@@ -327,13 +312,6 @@ class ViewStackPopup(Popup):
         self.update_progressbars()
         self.button_disabled = self.stack_object.size < 3
 
-        # self.load_word_widgets()
-
-    # def load_word_widgets(self):
-    #     SGL = self.ids.ViewWordSGL
-    #     for word in self.stack_object.words:
-    #         SGL.add_widget(WordRelativeLayout(word))
-
     def reset_stack(self, selected_stack_relative_layout, instance):
         self.stack_object.refresh_rank_dict()
         selected_stack_relative_layout.redraw()
@@ -347,20 +325,24 @@ class ViewStackPopup(Popup):
                 'font_size': 20, }
 
     def generate_word_listview(self):
-        list_adapter = WordListAdapter(data=self.word_list,
-                                       args_converter=self.args_converter,
-                                       selection_mode="single",
-                                       allow_empty_selection=False,
-                                       cls=WordListItemButton,
-                                       word_list=self.word_list)
+        list_adapter = WordListAdapter(
+            data=self.word_list,
+            args_converter=self.args_converter,
+            selection_mode="single",
+            allow_empty_selection=False,
+            cls=WordListItemButton,
+            word_list=self.word_list
+        )
         self.word_list_view.adapter = list_adapter
         self.word_list_view.container.spacing = 0.2
 
     def update_progressbars(self):
-        reviewing_set = self.rank_dict['1'].union(self.rank_dict['2'],
-                                                  self.rank_dict['3'],
-                                                  self.rank_dict['4'],
-                                                  self.rank_dict['5'])
+        reviewing_set = self.rank_dict['1'].union(
+            self.rank_dict['2'],
+            self.rank_dict['3'],
+            self.rank_dict['4'],
+            self.rank_dict['5']
+        )
 
         self.ids.NewPFL.ids.PB.value = len(self.rank_dict['-1'])
         self.ids.MasteredPFL.ids.PB.value = len(self.rank_dict['6'])
@@ -386,9 +368,13 @@ class CreateStackButton(Button):
 
     def open_popup(self, SelectableGridLayout):
         popup = CreateStackPopup()
-        popup.ids.SaveChangesBtn.bind(on_release=partial(self.create_new_stack,
-                                                         popup,
-                                                         SelectableGridLayout))
+        popup.ids.SaveChangesBtn.bind(
+            on_release=partial(
+                self.create_new_stack,
+                popup,
+                SelectableGridLayout,
+            )
+        )
         popup.open()
 
     def create_new_stack(self, popup, SelectableGridLayout, instance):
@@ -499,12 +485,14 @@ class CreateStackPopup(Popup):
 
     def generate_word_listview(self):
 
-        self.list_adapter = WordListAdapter(data=self.word_list,
-                                            args_converter=self.args_converter,
-                                            selection_mode="single",
-                                            allow_empty_selection=False,
-                                            cls=ListItemButton,
-                                            word_list=self.word_list)
+        self.list_adapter = WordListAdapter(
+            data=self.word_list,
+            args_converter=self.args_converter,
+            selection_mode="single",
+            allow_empty_selection=False,
+            cls=ListItemButton,
+            word_list=self.word_list
+        )
         self.word_list_view.adapter = self.list_adapter
         self.word_list_view.container.spacing = 0.2
 
@@ -512,8 +500,9 @@ class CreateStackPopup(Popup):
 
         popup = EditWordsPopup(self.word_list)
         popup.ids.SaveChangesBtn.bind(on_release=partial(
-                            self.update_changes_to_word_list,
-                            popup))
+            self.update_changes_to_word_list,
+            popup
+        ))
         popup.open()
 
     def update_changes_to_word_list(self,
@@ -539,6 +528,7 @@ class CreateStackPopup(Popup):
 
 class WordDescriptionLayout(SelectableView, FloatLayout):
     Builder.load_string("""
+#:import short_meaning helperfuncs.short_meaning
 <WordDescriptionLayout>:
     id: WRL
     canvas.before:
@@ -596,7 +586,6 @@ class ProgressFloatLayout(FloatLayout):
 class EditWordsPopup(Popup):
 
     Builder.load_string("""
-#:import short_meaning helperfuncs.short_meaning
 <EditWordsPopup>:
     title: "Edit Words"
     size_hint: 0.7, 0.7
@@ -708,13 +697,9 @@ class EditWordsPopup(Popup):
         self.word_list = stack_words
         self.selected_word_list_view = self.ids.SelectedWordLV
         self.search_word_list_view = self.ids.SearchWordLV
-        # self.thesaurus_word_list_view = self.ids.ThesaurusWordListView
         self.search_list_adapter = None
         self.selected_list_adapter = None
         self.generate_selected_word_listview()
-        # self.populate_selected_list()
-
-        # self.search_word_list_view.adapter.bind(on_selection_change=self.generate_thesaurus_listview())
 
     def args_converter(self, row_index, rec):
 
@@ -727,26 +712,28 @@ class EditWordsPopup(Popup):
     def generate_selected_word_listview(self):
 
         self.selected_list_adapter = WordListAdapter(
-                                        data=self.word_list,
-                                        args_converter=self.args_converter,
-                                        selection_mode='single',
-                                        allow_empty_selection=True,
-                                        cls=WordListItemButton,
-                                        word_list=self.word_list)
+            data=self.word_list,
+            args_converter=self.args_converter,
+            selection_mode='single',
+            allow_empty_selection=True,
+            cls=WordListItemButton,
+            word_list=self.word_list,
+        )
         self.selected_word_list_view.adapter = self.selected_list_adapter
 
-    def generate_search_word_listview(self,
-                                      search_word_list):
+    def generate_search_word_listview(self, search_word_list):
 
         self.search_list_adapter = WordListAdapter(
-                                    data=search_word_list,
-                                    args_converter=self.args_converter,
-                                    selection_mode='multiple',
-                                    allow_empty_selection=True,
-                                    cls=WordListItemButton)
+            data=search_word_list,
+            args_converter=self.args_converter,
+            selection_mode='multiple',
+            allow_empty_selection=True,
+            cls=WordListItemButton
+        )
         self.search_word_list_view.adapter = self.search_list_adapter
         self.search_word_list_view.adapter.bind(
-                        on_selection_change=self.generate_thesaurus_listview)
+            on_selection_change=self.generate_thesaurus_listview
+        )
 
     def generate_thesaurus_listview(self,
                                     word_list_adapter, *args):
@@ -760,14 +747,6 @@ class EditWordsPopup(Popup):
             WDL.word_object = word
             self.ids.ThesaurusWordGL.add_widget(WDL())
 
-    #     thesaurus_list_adapter = WordListAdapter(data=search_word_list,
-    #                                              args_converter=self.thesaurus_args_converter,
-    #                                              selection_mode='none',
-    #                                              allow_empty_selection=True,
-    #                                              cls=WordDescriptionLayout)
-    #     self.thesaurus_word_list_view.adapter = thesaurus_list_adapter
-    #     self.thesaurus_word_list_view.container.spacing = 20
-
     def search_words(self, input):
         self.search_word_list_view.container.parent.scroll_y = 1
         search_result = []
@@ -778,7 +757,6 @@ class EditWordsPopup(Popup):
 
         self.generate_search_word_listview(search_result)
         if(search_result == []):
-            # self.generate_thesaurus_listview(self.search_word_list_view.adapter)
             self.ids.ThesaurusWordGL.clear_widgets()
 
     def populate_selected_list(self):
@@ -809,17 +787,18 @@ class EditStackButton(Button):
         selected_stack_object = selected_stack_relative_layout.stack_object
         popup = EditStackPopup(selected_stack_object)
         popup.ids.SaveChangesBtn.bind(on_release=partial(
-                                                self.update_changes_to_stack,
-                                                popup,))
+            self.update_changes_to_stack,
+            popup,
+        ))
 
-        popup.bind(on_dismiss=partial(self.redraw_callback,
-                                      selected_stack_relative_layout))
+        popup.bind(on_dismiss=partial(
+            self.redraw_callback,
+            selected_stack_relative_layout,
+        ))
 
         popup.open()
 
-    def update_changes_to_stack(self,
-                                popup,
-                                instance):
+    def update_changes_to_stack(self, popup, instance):
         popup.save_changes_to_stack_object()
         popup.dismiss()
 
@@ -868,8 +847,8 @@ class EditStackPopup(Popup):
                 Rectangle:
                     pos: WarningMessage.pos
                     size: WarningMessage.size
-            text: "WARNING:\
-Changing the Words in the Stack will reset the progress"
+            text: "WARNING! \
+Changing words in the Stack will reset your progress!"
             halign: 'center'
             valign: 'middle'
             size_hint: 0.25, 0.25
@@ -954,12 +933,14 @@ Changing the Words in the Stack will reset the progress"
 
     def generate_word_listview(self):
 
-        self.list_adapter = WordListAdapter(data=self.stack_object.words,
-                                            args_converter=self.args_converter,
-                                            selection_mode="single",
-                                            allow_empty_selection=False,
-                                            cls=ListItemButton,
-                                            word_list=self.stack_object.words)
+        self.list_adapter = WordListAdapter(
+            data=self.stack_object.words,
+            args_converter=self.args_converter,
+            selection_mode="single",
+            allow_empty_selection=False,
+            cls=ListItemButton,
+            word_list=self.stack_object.words
+        )
         self.word_list_view.adapter = self.list_adapter
         self.word_list_view.container.spacing = 0.2
 
@@ -967,13 +948,12 @@ Changing the Words in the Stack will reset the progress"
 
         popup = EditWordsPopup(self.stack_object.words)
         popup.ids.SaveChangesBtn.bind(on_release=partial(
-                            self.update_changes_to_word_list,
-                            popup))
+            self.update_changes_to_word_list,
+            popup
+        ))
         popup.open()
 
-    def update_changes_to_word_list(self,
-                                    popup,
-                                    instance):
+    def update_changes_to_word_list(self, popup, instance):
         self.stack_object.words = popup.selected_list_adapter.data
         self.stack_object.refresh_rank_dict()
         popup.dismiss()
@@ -1003,10 +983,11 @@ class DeleteStackButton(Button):
 
     def open_popup(self, selectable_grid_layout):
         popup = DeleteStackPopup()
-        popup.ids.DeleteBtn.bind(on_release=partial(self.delete_stack,
-                                                    popup,
-                                                    selectable_grid_layout
-                                                    ))
+        popup.ids.DeleteBtn.bind(on_release=partial(
+            self.delete_stack,
+            popup,
+            selectable_grid_layout,
+        ))
         popup.open()
 
     def delete_stack(self, popup, selectable_grid_layout, instance):
@@ -1055,9 +1036,8 @@ class DeleteStackPopup(Popup):
 
 class RETextInput(TextInput):
 
-    pat1 = re.compile('[^a-zA-Z0-9\s]')
-    # pat = re.compile('^\d+|[^a-zA-Z0-9\s]')
-    pat2 = re.compile('[^A-Za-z]')
+    pat1 = re.compile(r'[^a-zA-Z0-9\-\s]')
+    pat2 = re.compile(r'[^A-Za-z]')
 
     def insert_text(self, substring, from_undo=False):
         if(len(self.text) == 0):
@@ -1081,6 +1061,14 @@ class StackListScreen(Screen):
             Rectangle:
                 pos: self.pos
                 size: self.size
+
+        Label:
+            id: DBTitle
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
+            font_size: 60
+            size: self.texture_size
+            halign: 'center'
+            valign: 'middle'
 
         ViewStackButton:
             id: ViewStackBtn
@@ -1188,6 +1176,7 @@ class StackListScreen(Screen):
         self.stack_db = self.fcdb.stack_db
         db_init()
         self.load_stack_widgets_from_database()
+        self.ids.DBTitle.text = self.fcdb.name
 
     def on_leave(self):
         self.clear_widgets()
@@ -1199,12 +1188,3 @@ class StackListScreen(Screen):
     def add_stack_widget(self, stack_object):
         SRL = StackRelativeLayout(stack_object)
         self.ids.StackSGL.add_widget(SRL)
-
-# class StackListApp(App):
-
-#     def build(self):
-#         return StackListScreen(STACK_DATABASE)
-
-
-# if __name__ == '__main__':
-#     StackListApp().run()
