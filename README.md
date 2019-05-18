@@ -28,7 +28,7 @@ Written entirely in Python 3.6.x, this customizable [GRE][gre] flashcard app use
 ```
 
 ## Usage
----
+
 
 - Once your virtual environment is activated and all the required packages are installed, run the file ```main.py``` in your terminal.
 
@@ -58,7 +58,7 @@ Written entirely in Python 3.6.x, this customizable [GRE][gre] flashcard app use
 ![Example practice Session](http://g.recordit.co/eep1vVEN87.gif)
 
 ## Other notable features
----
+
 
 - Saves progress on exit.
 - Caches audio clips, downloaded from the net, for each session. Deletes the cached audio files upon closing the app.
@@ -70,7 +70,7 @@ Written entirely in Python 3.6.x, this customizable [GRE][gre] flashcard app use
 - Crude UI :grin:
 
 ## Contribute
----
+
 
 - Report bugs and issues here on github.
 - There are a few features such as -- adding a timer, tracking and reporting on progress over time, that could be added.
@@ -78,13 +78,13 @@ Written entirely in Python 3.6.x, this customizable [GRE][gre] flashcard app use
 
 
 ## License and Author Info
----
+
 - Flash Card App is available under the MIT license. See [LICENSE][MIT] for more information.
 
 [MIT]: LICENSE
 
 ## References and Acknowledgments
----
+
 
 - [Magoosh GRE Vocabulary Flashcards][magoosh] (on which my app is based).
 - [Barron's 333][333] list.
