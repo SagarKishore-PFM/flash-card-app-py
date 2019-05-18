@@ -361,7 +361,7 @@ class AnimatedLayout(BoxLayout):
         self.clear_widgets()
 
         self.front_face = FrontFace()
-        self.front_face.ids.word_btn.text = self.word.name
+        self.front_face.ids.word_btn.text = self.word.name.title()
         self.front_face.ids.word_btn.on_release = self.flip_animation
 
         label_text, label_color = rank_text(self.rank)
@@ -375,7 +375,7 @@ class AnimatedLayout(BoxLayout):
         self.clear_widgets()
 
         back_face = BackFace()
-        back_face.ids.WordNameLabel.text = self.word.name
+        back_face.ids.WordNameLabel.text = self.word.name.title()
         back_face.ids.WordDescriptionLabel.text = word_description(self.word)
         label_text, label_color = rank_text(self.rank)
         back_face.ids.rank_label.text = label_text
