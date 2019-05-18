@@ -65,7 +65,7 @@ Written entirely in Python 3.6.x, this customizable [GRE][gre] flashcard app use
 - A search bar to search for `Words` in the Word List screen.
 - *Add Word* functionality checks for existing and invalid words.
 
-![Word List screen functionalities](http://g.recordit.co/hX8CmCPAwj.gif)
+![Word List screen functionalities](http://g.recordit.co/GS2FuyY4TK.gif)
 
 - Crude UI :grin:
 
