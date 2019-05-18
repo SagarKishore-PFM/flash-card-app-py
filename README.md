@@ -63,6 +63,7 @@ Written entirely in Python 3.6.x, this customizable [GRE][gre] flashcard app use
 - Saves progress on exit.
 - Caches audio clips, downloaded from the net, for each session. Deletes the cached audio files upon closing the app.
 - A search bar to search for `Words` in the Word List screen.
+- *Add Word* functionality checks for existing and invalid words.
 
 ![Word List screen functionalities](http://g.recordit.co/eJupRTz0tp.gif)
 
