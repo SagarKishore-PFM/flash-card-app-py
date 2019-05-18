@@ -51,23 +51,43 @@ class GameScreen(Screen):
         GamePFL:
             id: NewPFL
 
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 0.1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
         GamePFL:
             id: MasteredPFL
+
+            canvas.before:
+                Color:
+                    rgba: 0, 1, 0, 0.1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
 
         GamePFL:
             id: ReviewingPFL
 
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 0, 0.1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
         GamePFL:
             id: LearningPFL
 
+            canvas.before:
+                Color:
+                    rgba: 1, 0, 0, 0.1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
 
 <GamePFL@ProgressFloatLayout>:
-    canvas.before:
-        Color:
-            rgba: 0.1, 0.4, 0.1, 0.3
-        Rectangle:
-            pos: self.pos
-            size: self.size
     ProgressBar:
         id: PB
         pos_hint: {'center_x': 0.5, 'y': 0.3}
@@ -205,8 +225,6 @@ class AnimatedLayout(BoxLayout):
     rows: 1
     canvas.before:
         PushMatrix
-        Color:
-            rgba: 1, 0, 0, 0.40
         Rectangle:
             pos: self.pos
             size: self.size
@@ -225,8 +243,6 @@ class AnimatedLayout(BoxLayout):
     rows: 1
     size_hint: 1, 1
     canvas.before:
-        Color:
-            rgba: 1, 0.51, 0.4, 0.8
         Rectangle:
             pos: root.pos
             size: root.size
@@ -250,7 +266,7 @@ class AnimatedLayout(BoxLayout):
     orientation: 'vertical'
     canvas.before:
         Color:
-            rgba: 1, 0.51, 0.8, 0.4
+            rgba: 0.3, 0.3, 0.3, 1
         Rectangle:
             pos: root.pos
             size: root.size

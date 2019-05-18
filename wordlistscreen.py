@@ -151,7 +151,7 @@ class ViewWordPopup(Popup):
             pos: FL.pos # [0], FL.pos[1]
             size_hint_y: None
             height: FL.height * 0.98
-            bar_color: 0.1, 0.5, 1, 1
+            bar_color: 0.4, 0.8, 0.61, 1
             bar_width: 5
             canvas.before:
                 Color:
@@ -162,12 +162,6 @@ class ViewWordPopup(Popup):
 
             Label:
                 id: WordDescription
-                canvas.before:
-                    Color:
-                        rgba: 0.1, 0.4, 0.4, 0.35
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
                 size_hint_y: None
                 top: FL.top
                 height: self.texture_size[1]
@@ -250,12 +244,6 @@ class AddWordPopup(Popup):
 
     FloatLayout:
         id: FL
-        canvas.before:
-            Color:
-                rgba: 1, 0, 0, 0.0
-            Rectangle:
-                pos: self.pos
-                size: self.size
 
         WordRETextInput:
             id: TextIP
@@ -287,22 +275,16 @@ class AddWordPopup(Popup):
             pos: FL.pos
             size_hint_y: None
             height: FL.height * 0.85
-            bar_color: 0.1, 0.5, 1, 1
+            bar_color: 0.4, 0.8, 0.61, 1
             bar_width: 5
             canvas.before:
                 Color:
-                    rgba: 1, 1, 0, 0.1
+                    rgba: 0.1, 0.4, 0.4, 0.4
                 Rectangle:
                     pos: self.pos
                     size: self.size
             Label:
                 id: WordDescription
-                canvas.before:
-                    Color:
-                        rgba: 0.1, 0.4, 0.4, 0.4
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
                 size_hint_y: None
                 top: FL.top
                 height: self.texture_size[1]
@@ -510,7 +492,7 @@ class WordListScreen(Screen):
         pos_hint: {'center_x': .5}
         size_hint_x: 0.5
         size_hint_y: None
-        bar_color: 0.1, 0.5, 1, 1
+        bar_color: 0.9, 0.9, 0.11, 1
         bar_width: 5
         canvas.before:
             Color:
