@@ -401,7 +401,7 @@ class DeleteWordPopup(Popup):
 
         Button:
             text:"NO"
-            size_hint: 0.3, 0.35
+            size_hint:0.4, 0.35
             pos_hint: {'x': 0.55, 'y': 0.1}
             on_release: root.dismiss()
 """)
