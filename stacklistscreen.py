@@ -199,7 +199,6 @@ class ViewStackPopup(Popup):
             halign: 'right'
             valign: 'middle'
             text: "Stack Name"
-            color: 0.1, 0.4, 0.81, 1
             font_size: 40
 
         Button:
